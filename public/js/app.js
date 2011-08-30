@@ -1,39 +1,48 @@
-var WP = {};
+var WP = (function(wp) {
 
-(function(wp) {
+  _.extend(wp, {
 
-  wp.App = function(settings) {
-    var self = this;
-    self.settings = _.extend({}, settings, wp.Settings);
+    Settings: {
+      xhr: true,
+      dragdrop: true
+    },
 
-    console.log(this.settings);
+    App: function(settings) {
+      var self = this;
 
-    self.initialize();
-  };
+      self.settings = _.extend({}, wp.Settings, settings);
+
+      console.log(this.settings);
+
+      self.initialize();
+    },
+
+    ajax: function(options) {
+      options = options || {};
+      $.ajax(options);
+    }
+
+  });
+
 
   _.extend(wp.App.prototype, {
     initialize: function() {
       var self = this;
-      self.bind("form#uploader", "submit", function() {
-        var $form = $(this);
-        wp.ajax({
-          url: $form.attr('action'),
-          type: "POST",
-          data: $form.serialize(),
-          success: function() {
-            console.log("Success");
-            debugger;
-            console.log.apply(console, arguments);
-          },
-          error: function() {
-            console.log("Error");
-            debugger;
-            console.log.apply(console, arguments);
-          }
+
+      self.bind("input[name*='multi']", "change", function() {
+        $ul = $('#bag>ul');
+        $ul.empty();
+
+        _(this.files).each(function(file) {
+          var $li = $('<li>').text(file.name);
+          $ul.append($li);
         });
-      
-        return false;
       });
+
+      setupDragAndDropZones(self.settings.dragdrop);
+
+      setupAjaxForm(self.settings.xhr);
+
     },
 
     bind: function(selector, eventName, method) {
@@ -54,14 +63,61 @@ var WP = {};
 
   });
 
-  _.extend(wp, {
-
-    Settings: {},
-
-    ajax: function(options) {
-      options = options || {};
-      $.ajax(options);
+  var setupDragAndDropZones = function(enabled) {
+    if (!enabled) {
+      $(".dragdrop").hide();
+      return;
     }
-  });
 
-})(WP);
+    $("#dropzone").bind("dragover" , function(event) {
+      return false;
+    }).bind("drop" , function(event) {
+      console.log(event);
+
+      var files = event.originalEvent.dataTransfer.files,
+          $target = $('#loadzone');
+      $target.empty();
+
+      _(files).each(function(file) {
+        $target.append($('<img>').attr('src', file.getAsDataURL()));
+      });
+
+      return false;
+    });
+  },
+
+  setupAjaxForm = function(enabled) {
+    if (!enabled) {
+      $(".xhr-status").hide();
+      return;
+    }
+
+    $("form.xhr").sexyPost({
+      dataType: 'script',
+      async: true,
+      autoclear: false,
+
+      start: function(event) {
+        $("#onstart").text("onstart: ...");
+        $("#oncomplete").text("");
+      },
+
+      progress: function(event, completed, loaded, total) {
+        $("#onprogress > #text")
+          .text("onprogress: " + (completed * 100).toFixed(2) + "% " + loaded.toFixed(2) + " " + total.toFixed(2));
+        $("#onprogress > #graph")
+          .css("width", (completed * 100) + "%");
+      },
+
+      complete: function(event, responseText) {
+        $("#oncomplete").text("oncomplete: " + responseText);
+      },
+
+      error: function(event) { $("#onerror").text("onerror: error encountered"); },
+      abort: function(event) { $("#onabort").text("onabort: aborted"); }
+    });
+  };
+
+  return wp;
+
+})({});

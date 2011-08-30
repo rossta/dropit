@@ -7,10 +7,10 @@ require 'typhoeus'
 require 'uri'
 
 # Development
-# set :host, "http://localhost.com:4567"
-# set :consumer_key, "QFGhpo6jkxiN7UvN70Dr"
-# set :consumer_secret, "jKlOi0e8wNpx6f02ueQzDQXRDfJ4zbVAzWbj3L3C"
-# set :site, "http://www.localhost.com"
+set :host, "http://localhost.com:4567"
+set :consumer_key, "QFGhpo6jkxiN7UvN70Dr"
+set :consumer_secret, "jKlOi0e8wNpx6f02ueQzDQXRDfJ4zbVAzWbj3L3C"
+set :site, "http://www.localhost.com"
 
 # QA
 # set :host, "http://qa-weploader.heroku.com"
@@ -19,10 +19,10 @@ require 'uri'
 # set :site, "http://www.qaweplay.com"
 
 # Production
-set :host, "http://qa-weploader.heroku.com"
-set :consumer_key, "P9nOfKKa9OYnN2IUpCUQ"
-set :consumer_secret, "u8bmnRdESEK9NVd3AMDlC9zOFhHrJbsUBKZpXgM"
-set :site, "http://www.weplay.com"
+# set :host, "http://qa-weploader.heroku.com"
+# set :consumer_key, "P9nOfKKa9OYnN2IUpCUQ"
+# set :consumer_secret, "u8bmnRdESEK9NVd3AMDlC9zOFhHrJbsUBKZpXgM"
+# set :site, "http://www.weplay.com"
 
 set :request_token_path, "/oauth/request_token"
 set :access_token_path, "/oauth/access_token"
@@ -52,6 +52,32 @@ module WeplayUploader
      OAuth::RequestToken.new(consumer, session[:request_token], session[:request_token_secret])
    end
 
+   def process_uploads
+     puts "POST to UPLOAD"
+     puts "params: #{params.inspect}"
+
+     @access_token = access_token
+     file_params = params[:multi] || []
+     file_params << params[:fileData] if params[:fileData]
+
+     file_params.each do |param|
+       upload_session_response = @access_token.post(settings.new_upload_session_path, {})
+       upload_json     = JSON.parse(upload_session_response.body)
+       upload_url      = upload_json['upload_url']
+       upload_token_id = upload_json['upload_token_id']
+
+       file = File.new(param[:tempfile])
+       Typhoeus::Request.post(upload_json['upload_url'], :params => {
+           :title => param[:filename],
+           :fileData => file
+         }
+       )
+
+       @access_token.post(settings.media_create_from_upload_path, { :upload_token_id => upload_token_id })
+     end
+
+   end
+
 end
 
 include WeplayUploader
@@ -79,27 +105,15 @@ get "/request-token" do
 
 end
 
-post "/upload" do
-  @access_token = access_token
-  response_1 = @access_token.post(settings.new_upload_session_path, {})
-  upload_json     = JSON.parse(response_1.body)
-  upload_url      = upload_json['upload_url']
-  upload_token_id = upload_json['upload_token_id']
+post "/upload", :provides => "html" do
+  process_uploads
 
-  file = File.new(params[:fileData][:tempfile])
+  if request.xhr?
+    "Success!"
+  else
+    erb :index
+  end
 
-  response_2 = Typhoeus::Request.post(upload_json['upload_url'], :params => {
-      :title => "test post", :content => "this is my test",
-      :fileData => file
-    }
-  )
-
-  # response_2 = Nestful.post json['upload_url'], :format => :multipart, :params => {:fileData => params[:fileData][:tempfile] }
-  response_3 = @access_token.post(settings.media_create_from_upload_path, { :upload_token_id => upload_token_id })
-
-  @upload_response = JSON.parse(response_3.body)
-
-  erb :index
 end
 
 get "/callback" do

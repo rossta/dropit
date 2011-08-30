@@ -208,11 +208,11 @@ td { vertical-align: top; }
 
 
 /* ==|== primary styles =====================================================
-   Author: 
+   Author: Ross Kaffenberger
    ========================================================================== */
 
-
-
+#dropzone { width:400px; height:100px; border:1px solid #ccc; display:table-cell; vertical-align:middle; text-align:center; color:#ccc; font-weight:bold;}
+div.xhr-status { width:400px;}
 
 
 
