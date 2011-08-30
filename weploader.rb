@@ -86,8 +86,6 @@ post "/upload" do
   upload_url      = upload_json['upload_url']
   upload_token_id = upload_json['upload_token_id']
 
-require "ruby-debug"; debugger
-
   file = File.new(params[:fileData][:tempfile])
 
   response_2 = Typhoeus::Request.post(upload_json['upload_url'], :params => {
