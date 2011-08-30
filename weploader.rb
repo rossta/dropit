@@ -13,10 +13,16 @@ require 'uri'
 # set :site, "http://www.localhost.com"
 
 # QA
+# set :host, "http://qa-weploader.heroku.com"
+# set :consumer_key, "CN8a9ikL5nWbgWIeo6V3"
+# set :consumer_secret, "H3Ik2WfbE8SSgwtC8YUPanw9zeMqqeS0eoI2G262"
+# set :site, "http://www.qaweplay.com"
+
+# Production
 set :host, "http://qa-weploader.heroku.com"
-set :consumer_key, "CN8a9ikL5nWbgWIeo6V3"
-set :consumer_secret, "H3Ik2WfbE8SSgwtC8YUPanw9zeMqqeS0eoI2G262"
-set :site, "http://www.qaweplay.com"
+set :consumer_key, "P9nOfKKa9OYnN2IUpCUQ"
+set :consumer_secret, "u8bmnRdESEK9NVd3AMDlC9zOFhHrJbsUBKZpXgM"
+set :site, "http://www.weplay.com"
 
 set :request_token_path, "/oauth/request_token"
 set :access_token_path, "/oauth/access_token"
