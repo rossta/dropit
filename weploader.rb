@@ -6,9 +6,18 @@ require 'json'
 require 'nestful'
 require 'uri'
 
-set :consumer_key, "QFGhpo6jkxiN7UvN70Dr"
-set :consumer_secret, "jKlOi0e8wNpx6f02ueQzDQXRDfJ4zbVAzWbj3L3C"
-set :site, "http://www.localhost.com"
+# Development
+# set :host, "http://qa-weploader.heroku.com"
+# set :consumer_key, "QFGhpo6jkxiN7UvN70Dr"
+# set :consumer_secret, "jKlOi0e8wNpx6f02ueQzDQXRDfJ4zbVAzWbj3L3C"
+# set :site, "http://www.localhost.com"
+
+# QA
+set :host, "http://qa-weploader.heroku.com"
+set :consumer_key, "CN8a9ikL5nWbgWIeo6V3"
+set :consumer_secret, "H3Ik2WfbE8SSgwtC8YUPanw9zeMqqeS0eoI2G262"
+set :site, "http://www.qaweplay.com"
+
 set :request_token_path, "/oauth/request_token"
 set :access_token_path, "/oauth/access_token"
 set :authorize_path, "/oauth/authorize"
@@ -59,7 +68,7 @@ get "/request-token" do
     request_token = consumer.get_request_token
     session[:request_token] = request_token.token
     session[:request_token_secret] = request_token.secret
-    redirect request_token.authorize_url(:oauth_callback => "http://localhost:4567")
+    redirect request_token.authorize_url(:oauth_callback => settings.host)
   end
 
 end
