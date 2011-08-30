@@ -3,11 +3,11 @@ require 'sinatra'
 require 'erb'
 require 'oauth'
 require 'json'
-require 'nestful'
+require 'typhoeus'
 require 'uri'
 
 # Development
-# set :host, "http://qa-weploader.heroku.com"
+# set :host, "http://localhost.com:4567"
 # set :consumer_key, "QFGhpo6jkxiN7UvN70Dr"
 # set :consumer_secret, "jKlOi0e8wNpx6f02ueQzDQXRDfJ4zbVAzWbj3L3C"
 # set :site, "http://www.localhost.com"
@@ -79,8 +79,21 @@ post "/upload" do
   upload_json     = JSON.parse(response_1.body)
   upload_url      = upload_json['upload_url']
   upload_token_id = upload_json['upload_token_id']
-  response_2 = Nestful.post json['upload_url'], :format => :multipart, :params => {:fileData => params[:fileData][:tempfile] }
+
+require "ruby-debug"; debugger
+
+  file = File.new(params[:fileData][:tempfile])
+
+  response_2 = Typhoeus::Request.post(upload_json['upload_url'], :params => {
+      :title => "test post", :content => "this is my test",
+      :fileData => file
+    }
+  )
+
+  # response_2 = Nestful.post json['upload_url'], :format => :multipart, :params => {:fileData => params[:fileData][:tempfile] }
   response_3 = @access_token.post(settings.media_create_from_upload_path, { :upload_token_id => upload_token_id })
+
+  @upload_response = JSON.parse(response_3.body)
 
   erb :index
 end

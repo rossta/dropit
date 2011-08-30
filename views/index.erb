@@ -7,7 +7,16 @@
   <br/>
   <br/>
   <br/>
+
+  <% if @upload_response %>
+    <%= @upload_response.inspect %>
+  <% end %>
   <br/>
+  <br/>
+  <br/>
+
+
+
   <% if session[:request_token] %>
     Request token: <%= session[:request_token].inspect %><br/>
     Request secret: <%= session[:request_token_secret].inspect %><br/>
@@ -15,5 +24,5 @@
   <% else %>
     <a href="/request-token">Request Access</a>
   <% end %>
-  
+
 </div>

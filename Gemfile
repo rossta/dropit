@@ -4,8 +4,7 @@ gem "thin"
 gem "sinatra"
 gem "oauth"
 gem "json"
-gem "nestful"
-gem "i18n"
+gem "typhoeus"
 
 group :development do
   gem 'ruby-debug', :platforms => :ruby_18
