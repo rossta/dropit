@@ -16,6 +16,7 @@ describe Wepload::Server do
   it "should respond to /" do
     get '/'
     last_response.should be_ok
+    last_response.body.should include('Home')
   end
 
   it "should respond to /request-token" do
@@ -34,9 +35,23 @@ describe Wepload::Server do
   end
 
   it "should respond to /upload" do
-    Wepload::Uploader.stub!(:new).and_return(mock(Wepload::Uploader, :process! => nil))
-    post '/upload'
+    uploader = mock(Wepload::Uploader)
+    uploader.should_receive(:process!)
+    Wepload::Uploader.stub!(:new).and_return(uploader)
+
+    post '/upload', { :files => [{:tempfile =>'file'}] }
     last_response.should be_ok
+    last_response.body.should include('Success')
+  end
+
+  it "should respond not process if no files uploaded" do
+    uploader = mock(Wepload::Uploader)
+    uploader.should_not_receive(:process!)
+    Wepload::Uploader.stub!(:new).and_return(uploader)
+
+    post '/upload', { }
+    last_response.should be_ok
+    last_response.body.include?('No files sent')
   end
 
   describe "settings" do

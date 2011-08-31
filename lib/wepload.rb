@@ -1,3 +1,5 @@
 require 'wepload/oauth_helper'
+require 'wepload/routes'
 require 'wepload/server'
 require 'wepload/uploader'
+require 'wepload/upload_request'

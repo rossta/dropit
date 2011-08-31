@@ -37,9 +37,14 @@
 <body>
 
   <header>
-    <a href="/">HOME</a>
-    <a href="/clear-session">CLEAR</a>
+    <a href="/">Home</a>
+    <a href="/clear-session">Clear</a>
   </header>
+  <% if flash[:notice] %>
+    <div class="notice">
+      <%= flash[:notice] %>
+    </div>
+  <% end %>
 
   <%= yield %>
 

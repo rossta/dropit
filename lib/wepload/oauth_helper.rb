@@ -1,3 +1,5 @@
+require 'oauth'
+
 module Wepload
 
   module OauthHelper

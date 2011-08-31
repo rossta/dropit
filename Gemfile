@@ -6,6 +6,7 @@ gem "oauth"
 gem "json"
 gem "typhoeus"
 gem "jasmine"
+gem "rack-flash"
 
 group :development, :test do
   gem "rake"
