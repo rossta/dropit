@@ -1,2 +1,4 @@
-require './weploader'
-run Sinatra::Application
+require './app'
+
+use Rack::ShowExceptions
+run Wepload::Server.new

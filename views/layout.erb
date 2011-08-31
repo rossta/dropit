@@ -45,6 +45,12 @@
 
   <footer></footer>
 
+  <div id="overlay">
+    <header>
+      <h1>Drop files anywhere to upload...</h1>
+    </header>
+  </div>
+
   <!-- JavaScript at the bottom for fast page loading -->
 
   <!-- Grab Google CDN's jQuery, with a protocol relative URL; fall back to local if offline -->
@@ -64,11 +70,6 @@
 
   <script defer type="text/javascript" charset="utf-8">
     WP.application = new WP.App({
-      consumerKey: "<%= settings.consumer_key %>",
-      consumerSecret: "<%= settings.consumer_secret %>",
-      requestTokenUrl: "<%= settings.request_token_path %>",
-      accessTokenUrl: "<%= settings.access_token_path %>",
-      authorizeUrl: "<%= settings.authorize_path %>",
       dragdrop: false
     });
   </script>

@@ -1,123 +1,154 @@
-var WP = (function(wp) {
+var WP = (function(module) {
 
-  _.extend(wp, {
+  _.extend(module, {
 
     Settings: {
-      xhr: true,
-      dragdrop: true
     },
+
+    Utils: {
+
+    }
+
+  });
+
+  _.extend(module, {
 
     App: function(settings) {
       var self = this;
+      self.settings = _.extend({}, module.Settings, settings);
 
-      self.settings = _.extend({}, wp.Settings, settings);
-
-      console.log(this.settings);
-
+      self.view = new module.View();
       self.initialize();
-    },
-
-    ajax: function(options) {
-      options = options || {};
-      $.ajax(options);
     }
 
   });
 
+  _.extend(module.App.prototype, {
 
-  _.extend(wp.App.prototype, {
     initialize: function() {
       var self = this;
+      // initialize drag and drop
+      self.listen();
+    },
 
-      self.bind("input[name*='multi']", "change", function() {
-        $ul = $('#bag>ul');
-        $ul.empty();
+    listen: function() {
+      var self = this,
+          $overlay = $("#overlay");
 
-        _(this.files).each(function(file) {
-          var $li = $('<li>').text(file.name);
-          $ul.append($li);
-        });
+      $('body').bind('dragenter', function() {
+        $overlay.fadeIn();
+        return false;
       });
 
-      setupDragAndDropZones(self.settings.dragdrop);
+      $overlay
+        .bind('dragleave', function(event){
+          self.onLeave(event);
+          return false;
+        })
+        .bind('dragover', function() {
+          return false;
+        })
+        .bind('drop', function(event) {
+          self.onDrop(event);
+          return false;
+        });
 
-      setupAjaxForm(self.settings.xhr);
-
+      //init progressbar
     },
 
-    bind: function(selector, eventName, method) {
-      return $(this.el).delegate(selector, eventName, method);
+    onLeave: function(event) {
+      /*
+    	 * We have to double-check the 'leave' event state because this event stupidly
+    	 * gets fired by JavaScript when you mouse over the child of a parent element;
+    	 */
+    	if( event.pageX < 10 ||
+    	    event.pageY < 10 ||
+    	    $(window).width() - event.pageX < 10  ||
+    	    $(window).height - event.pageY < 10) {
+    		$("#overlay").fadeOut(125);
+    	}
     },
 
-    getAuthentication: function() {
-      var self;
-      return {
-        consumerKey: self.settings.consumerKey,
-        consumerSecret: self.settings.consumerSecret,
-        token: getAccessToken(),
-        tokenSecret: getAccessSecret()
-      };
+    onDrop: function(event) {
+      var self = this;
+    	var files = event.originalEvent.dataTransfer.files;
+    	var fileTotal = files.length;
+
+      self.view.trigger('drop', fileTotal);
+
+    	// If anything is wrong with the dropped files, exit.
+    	if(typeof files == "undefined" || fileTotal == 0)
+    		return;
+
+      self.view.trigger('uploadstart', fileTotal);
+
+    	// Process each of the dropped files individually
+    	_(files).each(function(file, i) {
+    	  self.uploadFile(file, fileTotal);
+    	});
     },
 
-    el: "#main"
+    uploadFile: function(file, total) {
+      new module.Upload(file, total).send();
+    }
 
   });
 
-  var setupDragAndDropZones = function(enabled) {
-    if (!enabled) {
-      $(".dragdrop").hide();
-      return;
+  _.extend(module, {
+
+    Upload: function(file, total) {
+      var self = this;
+      self.file = file;
+      self.total = total;
     }
 
-    $("#dropzone").bind("dragover" , function(event) {
-      return false;
-    }).bind("drop" , function(event) {
-      console.log(event);
+  });
 
-      var files = event.originalEvent.dataTransfer.files,
-          $target = $('#loadzone');
-      $target.empty();
+  _.extend(module.Upload.prototype, {
 
-      _(files).each(function(file) {
-        $target.append($('<img>').attr('src', file.getAsDataURL()));
-      });
-
-      return false;
-    });
-  },
-
-  setupAjaxForm = function(enabled) {
-    if (!enabled) {
-      $(".xhr-status").hide();
-      return;
+    send: function() {
+      console.log("sending " + this.file.name);
     }
 
-    $("form.xhr").sexyPost({
-      dataType: 'script',
-      async: true,
-      autoclear: false,
+  });
 
-      start: function(event) {
-        $("#onstart").text("onstart: ...");
-        $("#oncomplete").text("");
+  _.extend(module, {
+    View: function() {
+    }
+  });
+
+  _.extend(module.View.prototype, {
+
+    trigger: function() {
+      var args = _.toArray(arguments);
+      var callback = this.events[args.shift()];
+      if (callback) callback.apply(this, args);
+    },
+
+    events: {
+      "drop": function() {
+        // Hide overlay
+      	$("#overlay").fadeOut(0);
+
+      	// Empty status text
+      	$("#upload-details").html("");
+
+      	// Reset progress bar incase we are dropping MORE files on an existing result page
+        // $("#upload-status-progressbar").progressbar({value:0});
+
+      	// Show progressbar
+      	$("#upload-status-progressbar").fadeIn(0);
       },
 
-      progress: function(event, completed, loaded, total) {
-        $("#onprogress > #text")
-          .text("onprogress: " + (completed * 100).toFixed(2) + "% " + loaded.toFixed(2) + " " + total.toFixed(2));
-        $("#onprogress > #graph")
-          .css("width", (completed * 100) + "%");
-      },
+      "uploadstart": function(fileTotal) {
+        // Update and show the upload box
+      	var label = (fileTotal == 1 ? " file" : " files");
+      	$("#upload-count").html(fileTotal + label);
+      	$("#upload-thumbnail-list").fadeIn(125);
+      }
+    }
+  });
 
-      complete: function(event, responseText) {
-        $("#oncomplete").text("oncomplete: " + responseText);
-      },
-
-      error: function(event) { $("#onerror").text("onerror: error encountered"); },
-      abort: function(event) { $("#onabort").text("onabort: aborted"); }
-    });
-  };
-
-  return wp;
+  return module;
 
 })({});

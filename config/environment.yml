@@ -1,0 +1,23 @@
+development:
+  host: "http://localhost:4567"
+  consumer_key: "QFGhpo6jkxiN7UvN70Dr"
+  consumer_secret: "jKlOi0e8wNpx6f02ueQzDQXRDfJ4zbVAzWbj3L3C"
+  site: "http://www.localhost.com"
+
+test:
+  host: "http://test.localhost:4567"
+  consumer_key: "consumer_key"
+  consumer_secret: "consumer_secret"
+  site: "http://www.example.com"
+
+staging:
+  host: "http://qa-weploader.heroku.com"
+  consumer_key: "CN8a9ikL5nWbgWIeo6V3"
+  consumer_secret: "H3Ik2WfbE8SSgwtC8YUPanw9zeMqqeS0eoI2G262"
+  site: "http://www.qaweplay.com"
+
+production:
+  host: "http://qa-weploader.heroku.com"
+  consumer_key: "P9nOfKKa9OYnN2IUpCUQ"
+  consumer_secret: "u8bmnRdESEK9NVd3AMDlC9zOFhHrJbsUBKZpXgM"
+  site: "http://www.weplay.com"

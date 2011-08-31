@@ -1,38 +1,38 @@
 <div id="main">
-  <% if session[:request_token] %>
-  <form action="/upload" method="post" accept-charset="utf-8" enctype="multipart/form-data" class="xhr">
+
+  <div id="upload-box">
+
+		<div>
+			<p id="upload-status-text">
+				Drag and Drop images...
+			</p>
+			<p id="upload-details">
+				Uploads are resized and mirrored for you automatically.
+			</p>
+		</div>
+		<div id="upload-status-progressbar"></div>
+	</div>
+
+  <noscript>
+		<form id="noscript-upload" action="/upload" enctype="multipart/form-data" method="post">
+			(*JS Disabled) Manual Upload&nbsp;&nbsp;
+			<input id="files" name="files" type="file" multiple onchange="document.getElementById('uploadform').submit();" />
+		</form>
+	</noscript>
+
+  <div id="upload-thumbnail-list">
+
+		<div id="upload-header">
+			<span id="upload-title">Uploads</span>
+			<img id="upload-animation" src="/img/loading.gif" />
+			<span id="upload-count"></span>
+		</div>
+	</div>
+	
+	<form action="/upload" method="post" accept-charset="utf-8" enctype="multipart/form-data" class="xhr">
     <!-- <p><input type="file" value="Browse &rarr;" name="fileData"></p> -->
     <p><input type="file" value="Multi-browse &rarr;" name="multi[]" multiple></p>
     <p><input type="submit" value="Upload"></p>
     <p><input type="reset" value="Reset"></p>
   </form>
-  <div id="bag">
-    <ul></ul>
-  </div>
-
-  <div class="xhr-status">
-    <div id="onstart"></div>
-    <div id="oncomplete"></div>
-    <div id="onprogress">
-      <div id="text"></div>
-      <div id="graph" style="height: 5px; width: 0%; background: silver; border: 1px dotted steelblue"></div>
-    </div>
-    <div id="onerror"></div>
-    <div id="onabort"></div>
-  </div>
-
-  <div id="dropzone" class="dragdrop">
-    DROP HERE
-  </div>
-  <div id="loadzone" class="dragdrop">
-  </div>
-
-  <br/>
-  <br/>
-  <br/>
-
-  <% else %>
-  <a href="/request-token">Request Access</a>
-  <% end %>
-
 </div>
