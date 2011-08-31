@@ -28,11 +28,15 @@
 			<span id="upload-count"></span>
 		</div>
 	</div>
-	
-	<form action="/upload" method="post" accept-charset="utf-8" enctype="multipart/form-data" class="xhr">
+
+	<form action="/upload" method="post" accept-charset="utf-8" enctype="multipart/form-data" class="xhr hidden">
     <!-- <p><input type="file" value="Browse &rarr;" name="fileData"></p> -->
     <p><input type="file" value="Multi-browse &rarr;" name="files[]" multiple></p>
     <p><input type="submit" value="Upload"></p>
     <p><input type="reset" value="Reset"></p>
   </form>
+
+  <div id="overlay">
+    <h1>Drop files anywhere to upload...</h1>
+  </div>
 </div>

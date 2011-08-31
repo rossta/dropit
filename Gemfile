@@ -5,7 +5,6 @@ gem "sinatra"
 gem "oauth"
 gem "json"
 gem "typhoeus"
-gem "jasmine"
 gem "rack-flash"
 
 group :development, :test do
@@ -14,4 +13,5 @@ group :development, :test do
   gem "rspec"
   gem 'ruby-debug', :platforms => :ruby_18
   gem 'ruby-debug19', :require => 'ruby-debug', :platforms => :ruby_19
+  gem "jasmine"
 end

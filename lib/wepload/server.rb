@@ -28,7 +28,11 @@ module Wepload
     enable :sessions
 
     get "/" do
-      erb :index
+      if session[:request_token]
+        erb :index
+      else
+        erb :access
+      end
     end
 
     get "/request-token" do
@@ -43,6 +47,7 @@ module Wepload
     end
 
     post "/upload" do
+require "ruby-debug"; debugger
       files = params[:files]
 
       if files && files.any?
