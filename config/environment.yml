@@ -19,3 +19,4 @@ production:
   consumer_key: "P9nOfKKa9OYnN2IUpCUQ"
   consumer_secret: "u8bmnRdESEK9NVd3AMDlC9zOFhHrJbsUBKZpXgM"
   site: "http://www.weplay.com"
+  redis_url: "redis://redistogo:8d3f892e31b520aae41de28c05519a78@icefish.redistogo.com:9344/"
