@@ -1,4 +1,13 @@
 describe("WP", function() {
+  var data, reader;
+  data = new FormData;
+  reader = new FileReader;
+
+  beforeEach(function() {
+    spyOn(WP.Utils, 'formData').andReturn(data);
+    spyOn(WP.Utils, 'fileReader').andReturn(reader);
+    spyOn(reader, 'readAsDataURL');
+  });
 
   it("should be defined", function() {
     expect(WP).toEqual(jasmine.any(Object));
@@ -8,7 +17,7 @@ describe("WP", function() {
     var app, files;
 
     beforeEach(function() {
-      app = new WP.App;
+      app = new WP.App();
       files = [{ name: "image1.jpg"}, { name: "image2.jpg"}];
       spyOn(app, "trigger");
     });
@@ -63,6 +72,10 @@ describe("WP", function() {
     });
 
     describe("Upload.create", function() {
+      beforeEach(function(){
+        spyOn(WP.FileReaderUpload.prototype, "initialize");
+      });
+
       it("should create a new FileReaderUpload if FileReader is defined", function() {
         spyOn(_, "isUndefined").andReturn(true);
         expect(WP.Upload.create()).toEqual(jasmine.any(WP.BasicUpload));
@@ -79,7 +92,6 @@ describe("WP", function() {
       beforeEach(function() {
         file = { name: "image.jpg", size: 1234, type: "jpg" };
         upload = new WP.FileReaderUpload(file, 1);
-        spyOn(upload.reader, "readAsDataURL");
       });
 
       describe("trigger", function() {
@@ -102,15 +114,6 @@ describe("WP", function() {
         beforeEach(function() {
           upload.initialize();
         });
-        it("should define reader onerror callback", function() {
-          expect(upload.reader.onerror).toEqual(jasmine.any(Function));
-          expect(upload.reader.onerror).toEqual(upload.onerror);
-        });
-
-        it("should define reader onloadend callback", function() {
-          expect(upload.reader.onloadend).toEqual(jasmine.any(Function));
-          expect(upload.reader.onloadend).toEqual(upload.onloadend);
-        });
 
         it("should read file as data URL", function() {
           expect(upload.reader.readAsDataURL).toHaveBeenCalledWith(file);
@@ -118,23 +121,12 @@ describe("WP", function() {
       });
 
       describe("send", function() {
-        var data;
         beforeEach(function() {
-          data = new FormData;
           spyOn($, "ajax");
+          spyOn(data, "append");
         });
 
-        // it("should not post data if not valid data", function() {
-        //   spyOn(WP.Utils, "base64StartIndex").andReturn(false);
-        //   upload.send(data);
-        //   expect($.ajax).not.toHaveBeenCalled();
-        // });
-        //
         describe("valid data", function() {
-          beforeEach(function() {
-            // spyOn(WP.Utils, "base64StartIndex").andReturn(1);
-            spyOn(WP.Utils, 'formData').andReturn(data);
-          });
 
           it('should ajaxify post data', function() {
             upload.send();
@@ -153,7 +145,6 @@ describe("WP", function() {
           });
 
           it("should build form data", function() {
-            spyOn(data, "append");
             upload.send();
             expect(data.append).toHaveBeenCalledWith("files[]", upload.file);
           });
@@ -198,17 +189,6 @@ describe("WP", function() {
           });
         });
       });
-
-      // describe("beforeSend", function() {
-      //   it("should set request headers", function() {
-      //     var file = upload.file, xhr = { setRequestHeader: function() {} };
-      //     spyOn(xhr, 'setRequestHeader');
-      //     upload.beforeSend(xhr);
-      //     expect(xhr.setRequestHeader).toHaveBeenCalledWith('x-file-name', file.name);
-      //     expect(xhr.setRequestHeader).toHaveBeenCalledWith('x-file-size', file.size);
-      //     expect(xhr.setRequestHeader).toHaveBeenCalledWith('x-file-type', file.type);
-      //   });
-      // });
 
     });
   });
@@ -273,17 +253,6 @@ describe("WP", function() {
     describe("dataTransferFiles", function() {
       it("should traslate jquery event in to file list", function() {
 
-      });
-    });
-
-    describe("base64StartIndex", function() {
-      it('should return false if data length is less than 128 chars', function() {
-        expect(WP.Utils.base64StartIndex('foo')).toBeFalsy();
-      });
-      it('should return index after occurrence of comma', function() {
-        var length = 128, data = ",";
-        while(length--) { data += "a"; }
-        expect(WP.Utils.base64StartIndex(data)).toEqual(1);
       });
     });
 

@@ -24,6 +24,10 @@
 
     formData: function() {
       return new FormData();
+    },
+
+    fileReader: function() {
+      return new FileReader();
     }
 
   };
@@ -32,15 +36,6 @@
   // WP.Events courtesy of Backbone.Events
   // -------------------------------------
 
-  // A module that can be mixed in to *any object* in order to provide it with
-  // custom events. You may `bind` or `unbind` a callback function to an event;
-  // `trigger`-ing an event fires all callbacks in succession.
-  //
-  //     var object = {};
-  //     _.extend(object, Backbone.Events);
-  //     object.bind('expand', function(){ alert('expanded'); });
-  //     object.trigger('expand');
-  //
   WP.Events = {
 
     // Bind an event, specified by a string name, `ev`, to a `callback` function.
@@ -168,7 +163,7 @@
   WP.Upload = {
     send: function() { WP.Upload.create.apply(WP.Upload, arguments); },
     create: function(file, total) {
-      var klass = _.isUndefined(FileReader) ? WP.BasicUpload : WP.FileReaderUpload;
+      var klass = _.isUndefined(root.FileReader) ? WP.BasicUpload : WP.FileReaderUpload;
       return new klass(file, total);
     }
   };
@@ -177,7 +172,7 @@
     var self = this;
     self.file = file;
     self.total = total;
-    self.reader = new FileReader();
+    self.reader = WP.Utils.fileReader();
     self.initialize();
   };
 
