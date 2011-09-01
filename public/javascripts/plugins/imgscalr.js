@@ -295,26 +295,26 @@ function uploadFile(file, totalFiles) {
 //  }
 // }
 // 
-// function generateUploadResult(label, image, altInputValue) {
-//  var markup = "    <li><span class='label'>" + label + "</span><input readonly type='text' value='";
-//  
-//  if(image.url)
-//    markup += image.url;
-//  else
-//    markup += altInputValue;
-//  
-//  markup += "' /></li><li><span class='details'>";
-//  
-//  if(image.width)
-//    markup += image.width + "x" + image.height;
-//  
-//  if(image.width && image.sizeInBytes)
-//    markup += " - ";
-//  
-//  if(image.sizeInBytes)
-//    markup += (image.sizeInBytes / 1000) + " KB";
-//  
-//  markup += "</span></li>";
-//  
-//  return markup;
-// }
+function generateUploadResult(label, image, altInputValue) {
+ var markup = "    <li><span class='label'>" + label + "</span><input readonly type='text' value='";
+ 
+ if(image.url)
+   markup += image.url;
+ else
+   markup += altInputValue;
+ 
+ markup += "' /></li><li><span class='details'>";
+ 
+ if(image.width)
+   markup += image.width + "x" + image.height;
+ 
+ if(image.width && image.sizeInBytes)
+   markup += " - ";
+ 
+ if(image.sizeInBytes)
+   markup += (image.sizeInBytes / 1000) + " KB";
+ 
+ markup += "</span></li>";
+ 
+ return markup;
+}

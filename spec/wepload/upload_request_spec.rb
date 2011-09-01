@@ -49,7 +49,8 @@ describe Wepload::UploadRequest do
 
   describe "CreateMediumRequest" do
     before(:each) do
-      @access_token = mock(OAuth::AccessToken, :post => nil)
+      @response = mock('Response', :body => "\{\"medium\":\{\"id\":5469,\"type\":\"KImage\",\"height\":474,\"k_entry_id\":\"0_rj5efqxi\",\"width\":355\}\}")
+      @access_token = mock(OAuth::AccessToken, :post => @response)
     end
     describe "self.post" do
       it "should post an create medium request" do
@@ -61,6 +62,11 @@ describe Wepload::UploadRequest do
       it "should post to create medium path" do
         @access_token.should_receive(:post).with(media_create_from_upload_path, { :upload_token_id => "abc123" })
         Wepload::CreateMediumRequest.post(@access_token, "abc123")
+      end
+
+      it "should return the response body as json" do
+        json = Wepload::CreateMediumRequest.post(@access_token, "abc123")
+        json['medium']['k_entry_id'].should == "0_rj5efqxi"
       end
     end
   end

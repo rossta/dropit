@@ -45,7 +45,7 @@ module Wepload
     end
 
     def post
-      access_token.post(media_create_from_upload_path, { :upload_token_id => upload_token_id })
+      JSON.parse(access_token.post(media_create_from_upload_path, { :upload_token_id => upload_token_id }).body)
     end
   end
 end

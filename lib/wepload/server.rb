@@ -5,30 +5,42 @@ require 'erb'
 require 'json'
 require 'uri'
 require 'yaml'
+require 'redis'
+
+require 'sinatra/environment'
+require 'sinatra/logging'
+require 'sinatra/oauth'
+require 'sinatra/redis'
 
 module Wepload
   class Server < Sinatra::Base
-    include OauthHelper
     use Rack::Flash
+    register Sinatra::Environment
+    register Sinatra::Oauth
+    register Sinatra::Logging
+    register Sinatra::Redis
 
-    dir = File.dirname(File.expand_path(__FILE__)) + '/../..'
-    config = YAML.load_file('./config/environment.yml')[settings.environment.to_s]
-
-    set :root, dir
-    %Q|host site consumer_key consumer_secret|.split.each do |setting|
-      set setting.to_sym, Proc.new { config[setting] }
+    configure :production, :development do
+      enable :logging
     end
+
+    configure :test, :development do
+    end
+
+    set :root, File.dirname(File.expand_path(__FILE__)) + '/../..'
+
+    enable :raise_errors
+    enable :dump_errors
+    enable :sessions
 
     set :request_token_path, "/oauth/request_token"
     set :access_token_path, "/oauth/access_token"
     set :authorize_path, "/oauth/authorize"
 
-    set :raise_errors, Proc.new { [:test, :development].include? environment }
-
-    enable :sessions
-
     get "/" do
-      if session[:request_token]
+      log_request
+
+      if oauth_verified?
         erb :index
       else
         erb :access
@@ -36,29 +48,32 @@ module Wepload
     end
 
     get "/request-token" do
-      if session[:request_token]
-        redirect "/"
+      if oauth_verified?
+        redirect to("/")
       else
-        request_token = consumer.get_request_token
-        session[:request_token] = request_token.token
-        session[:request_token_secret] = request_token.secret
-        redirect request_token.authorize_url(:oauth_callback => settings.host)
+        redirect request_token.authorize_url(:oauth_callback => url('/'))
       end
     end
 
     post "/upload" do
-require "ruby-debug"; debugger
+      # handle not oauth_verified?
+      log_request
+
       files = params[:files]
 
       if files && files.any?
 
-        files.each do |file_params|
+        images = files.map do |file_params|
           Uploader.new(access_token, file_params).process!
         end
 
-        notice = "Success!"
+        notice = "Success"
+
         if request.xhr?
-          notice
+          content_type :json
+          response = { :responseText => notice, :images => images }
+          puts "Medium upload complete: #{response.inspect}"
+          response.to_json
         else
           flash[:notice] = notice
           erb :index
@@ -77,13 +92,15 @@ require "ruby-debug"; debugger
     end
 
     get "/callback" do
-      session[:oauth_verifier] = params[:oauth_verifier]
-      redirect "/", params
+      # handle no params[:oauth_verifier]
+      # handle no access token
+      oauth_verify! params[:oauth_verifier]
+      redirect to("/"), params
     end
 
     get "/clear-session" do
       session.clear
-      redirect "/"
+      redirect to("/")
     end
 
     # start the server if ruby file executed directly

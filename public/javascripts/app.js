@@ -20,6 +20,10 @@
     base64StartIndex: function(data) {
       var length = data.length, index;
       return (length > 128) && (index = data.indexOf(',') + 1) && (length > index) && index;
+    },
+
+    formData: function() {
+      return new FormData();
     }
 
   };
@@ -195,10 +199,14 @@
 
     send: function() {
       var self = this;
+      var data = WP.Utils.formData();
 
-      var data = new FormData();
       data.append("files[]", self.file);
 
+      // The contentType option must be set to false, forcing jQuery not to add a Content-Type header,
+      // otherwise, the boundary string will be missing from it.
+      // The processData flag is also set to false,
+      // otherwise, jQuery will try to convert your FormData into a string, which will fail.
       $.ajax({
         url: '/upload',
         type: 'POST',
@@ -214,8 +222,19 @@
         },
 
         success: function(response) {
+          // {"medium":{"id":5469, "type":"KImage", "height":474, "k_entry_id":"0_rj5efqxi", "width":355}}
+          // handle bad response
+
+          // update status
+
+          $("#upload-status-text").html(response.originalFileName + " Uploaded!");
+
           console.log("Successful upload!");
           console.log.apply(console, arguments);
+          _(response["images"]).chain().map(function(result) { return result['medium']; }).each(function(medium) {
+            var el = new WP.Thumbnail(medium).el;
+            $("#upload-thumbnail-list").append(el);
+          });
         }
       });
     },
@@ -322,6 +341,32 @@
       	$("#upload-thumbnail-list").fadeIn(125);
       }
     }
+  });
+
+  WP.Thumbnail = function(medium) {
+    this.medium = medium;
+
+    if (!this.medium.url) this.medium.url = this.urlFor(this.medium.k_entry_id);
+
+    var attrs = this.attributes || {};
+    if (this.id) attrs.id = this.id;
+    if (this.className) attrs['class'] = this.className;
+    this.el = document.createElement('div');
+    $(this.el).attr(attrs);
+    this.template = _.template(this.html);
+    this.render();
+  };
+
+  _.extend(WP.Thumbnail.prototype, WP.Events, {
+    render: function() {
+      $(this.el).html(this.template({ medium: this.medium }));
+    },
+
+    urlFor: function(k_entry_id) {
+      return "http://cdn2.kaltura.com/p/56612/thumbnail/entry_id/"+k_entry_id+"/width/210/height/133/type/3/quality/75";
+    },
+
+    html: "<div class='resultBox'><span class='thumbnail-container'><img width='150' src='<%= medium.url %>' /></span></div>"
   });
 
   return WP;

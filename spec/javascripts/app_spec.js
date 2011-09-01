@@ -120,34 +120,42 @@ describe("WP", function() {
       describe("send", function() {
         var data;
         beforeEach(function() {
-          data = ',imagedata';
+          data = new FormData;
           spyOn($, "ajax");
         });
 
-        it("should not post data if not valid data", function() {
-          spyOn(WP.Utils, "base64StartIndex").andReturn(false);
-          upload.send(data);
-          expect($.ajax).not.toHaveBeenCalled();
-        });
-
+        // it("should not post data if not valid data", function() {
+        //   spyOn(WP.Utils, "base64StartIndex").andReturn(false);
+        //   upload.send(data);
+        //   expect($.ajax).not.toHaveBeenCalled();
+        // });
+        //
         describe("valid data", function() {
           beforeEach(function() {
-            spyOn(WP.Utils, "base64StartIndex").andReturn(1);
+            // spyOn(WP.Utils, "base64StartIndex").andReturn(1);
+            spyOn(WP.Utils, 'formData').andReturn(data);
           });
 
           it('should ajaxify post data', function() {
-            upload.send(data);
+            upload.send();
             expect($.ajax).toHaveBeenCalledWith({
-              method: 'POST',
+              type: 'POST',
               url: '/upload',
-              data: "imagedata",
+              data: data,
+              cache: false,
+              contentType: false,
               processData: false,
               timeout: 60000,
-              dataType: 'text',
               beforeSend: jasmine.any(Function),
               error: jasmine.any(Function),
               success: jasmine.any(Function)
             });
+          });
+
+          it("should build form data", function() {
+            spyOn(data, "append");
+            upload.send();
+            expect(data.append).toHaveBeenCalledWith("files[]", upload.file);
           });
         });
       });
@@ -191,16 +199,16 @@ describe("WP", function() {
         });
       });
 
-      describe("beforeSend", function() {
-        it("should set request headers", function() {
-          var file = upload.file, xhr = { setRequestHeader: function() {} };
-          spyOn(xhr, 'setRequestHeader');
-          upload.beforeSend(xhr);
-          expect(xhr.setRequestHeader).toHaveBeenCalledWith('x-file-name', file.name);
-          expect(xhr.setRequestHeader).toHaveBeenCalledWith('x-file-size', file.size);
-          expect(xhr.setRequestHeader).toHaveBeenCalledWith('x-file-type', file.type);
-        });
-      });
+      // describe("beforeSend", function() {
+      //   it("should set request headers", function() {
+      //     var file = upload.file, xhr = { setRequestHeader: function() {} };
+      //     spyOn(xhr, 'setRequestHeader');
+      //     upload.beforeSend(xhr);
+      //     expect(xhr.setRequestHeader).toHaveBeenCalledWith('x-file-name', file.name);
+      //     expect(xhr.setRequestHeader).toHaveBeenCalledWith('x-file-size', file.size);
+      //     expect(xhr.setRequestHeader).toHaveBeenCalledWith('x-file-type', file.type);
+      //   });
+      // });
 
     });
   });
@@ -277,6 +285,10 @@ describe("WP", function() {
         while(length--) { data += "a"; }
         expect(WP.Utils.base64StartIndex(data)).toEqual(1);
       });
+    });
+
+    describe("formData", function() {
+
     });
   });
 

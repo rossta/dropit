@@ -11,7 +11,8 @@ module Wepload
     def process!
       response = UploadSessionRequest.post(access_token)
       FileUploadRequest.post(response['upload_url'], params)
-      CreateMediumRequest.post(access_token, response['upload_token_id'])
+      response_2 = CreateMediumRequest.post(access_token, response['upload_token_id'])
+      response_2
     end
   end
 

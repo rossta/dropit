@@ -1,2 +1,50 @@
+OAuth
+- Long lived access token
+  http://code.google.com/p/oauth-plugin/wiki/AccessToken
 
-handle noscript
+  # Marshaling access token
+  File.open('at.dmp', 'w+') do |f|
+    Marshal.dump(access_token, f)
+  end
+  From then on, do this.
+
+  access_token = nil
+  File.open('at.dmp') do |f|
+    access_token = Marshal.load(f)
+  end
+
+  @accesstoken = OAuth::AccessToken.new(@consumer, access_token, access_token_secret)
+
+- rename /callback
+
+On page load
+- Handle noscript
+- Handle no drag/drop
+- Choose target site and album
+
+Upload Prep
+- Batch images
+- Auto resize
+- Manual resize
+
+During Upload
+- Show progress
+
+Upload Complete
+- Render thumbnail data
+- Link to medium on Weplay
+- Link to album on Weplay
+
+Server
+- Background API calls
+- Push result to browser
+
+Architecture
+- Backbone frontend
+- Eventmachine backend
+
+Return visit/Offline
+- View upload history
+
+Weplay Backend
+- Throttle photo upload activities(?)

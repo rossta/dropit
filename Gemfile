@@ -2,10 +2,13 @@ source :gemcutter
 
 gem "thin"
 gem "sinatra"
+
 gem "oauth"
 gem "json"
 gem "typhoeus"
 gem "rack-flash"
+
+gem "redis"
 
 group :development, :test do
   gem "rake"
