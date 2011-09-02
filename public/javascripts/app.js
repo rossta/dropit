@@ -220,8 +220,7 @@
           // {"medium":{"id":5469, "type":"KImage", "height":474, "k_entry_id":"0_rj5efqxi", "width":355}}
           // handle bad response
           // update status
-          this.trigger("
-          ")
+          // this.trigger("")
 
           $("#upload-status-text").html(response.originalFileName + " Uploaded!");
 
