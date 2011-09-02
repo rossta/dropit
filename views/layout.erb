@@ -12,7 +12,7 @@
        More info: h5bp.com/b/378 -->
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 
-  <title>Weploader</title>
+  <title>WePload</title>
   <meta name="description" content="">
   <meta name="author" content="">
 
@@ -35,11 +35,16 @@
 </head>
 
 <body>
-
-  <header>
-    <a href="/">Home</a>
-    <a href="/clear-session">Clear</a>
-  </header>
+  <div id="toolbar">
+    <div class="table expand-width">
+      <header class="cell">
+        <h1><img src="/img/logo.png" /><a href="/">WePload</a></h1>
+      </header>
+      <nav class="cell text-right">
+        <a href="/clear-session">Clear</a>
+      </nav>
+    </div>
+  </div>
   <% if flash[:notice] %>
     <div class="notice">
       <%= flash[:notice] %>
@@ -49,6 +54,14 @@
   <%= yield %>
 
   <footer></footer>
+
+  <div id="overlay">
+    <div class="table expand-width expand-height">
+      <div class="cell text-center">
+        <h1>Drop files anywhere to upload...</h1>
+      </div>
+    </div>
+  </div>
 
   <!-- JavaScript at the bottom for fast page loading -->
 

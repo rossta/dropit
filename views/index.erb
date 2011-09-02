@@ -1,41 +1,32 @@
 <div id="main">
 
-  <div id="upload-box">
-
-		<div>
-      <p id="upload-status-text">Drag and Drop images...</p>
-      <p id="upload-details">
-        Uploads are resized and mirrored for you automatically.
-      </p>
-		</div>
-		<div id="upload-status-progressbar"></div>
-	</div>
+  <div id="upload-box" class="center text-center padding">
+    <p id="upload-status-text">Upload your photos to Weplay</p>
+    <p id="upload-details">
+      Drag and drop photos from your file system into the window to start uploading.
+    </p>
+    <div id="upload-status-progressbar"></div>
+  </div>
 
   <noscript>
-		<form id="noscript-upload" action="/upload" enctype="multipart/form-data" method="post">
-			(*JS Disabled) Manual Upload&nbsp;&nbsp;
-			<input id="files" name="files" type="file" multiple onchange="document.getElementById('uploadform').submit();" />
-		</form>
+    <form id="noscript-upload" action="/upload" enctype="multipart/form-data" method="post">
+    	(*JS Disabled) Manual Upload&nbsp;&nbsp;
+    	<input id="files" name="files" type="file" multiple onchange="document.getElementById('uploadform').submit();" />
+    </form>
 	</noscript>
 
   <div id="upload-thumbnail-list">
+    <div id="upload-header">
+      <span id="upload-title">Uploads</span>
+      <img id="upload-animation" src="/img/loading.gif" />
+      <span id="upload-count"></span>
+    </div>
+  </div>
 
-		<div id="upload-header">
-			<span id="upload-title">Uploads</span>
-			<img id="upload-animation" src="/img/loading.gif" />
-			<span id="upload-count"></span>
-		</div>
-	</div>
-
-	<form action="/upload" method="post" accept-charset="utf-8" enctype="multipart/form-data" class="xhr hidden">
-    <!-- <p><input type="file" value="Browse &rarr;" name="fileData"></p> -->
+  <form action="/upload" method="post" accept-charset="utf-8" enctype="multipart/form-data" class="xhr hidden">
     <p><input type="file" value="Multi-browse &rarr;" name="files[]" multiple></p>
     <p><input type="submit" value="Upload"></p>
     <p><input type="reset" value="Reset"></p>
   </form>
-
-  <div id="overlay">
-    <h1>Drop files anywhere to upload...</h1>
-  </div>
 
 </div>
