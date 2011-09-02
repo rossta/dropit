@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Wepload::Server do
+describe DropIt::Server do
   include Rack::Test::Methods
 
   before(:each) do
@@ -23,21 +23,21 @@ describe Wepload::Server do
     it "should respond to /" do
       get '/'
       last_response.should be_ok
-      last_response.body.should include('Home')
+      last_response.body.should include('DropIt')
     end
 
     it "should render 'Request Access' link if not oauth_verified" do
       get '/'
       last_response.should be_ok
       last_response.body.should include('Request Access')
-      last_response.body.should_not include('Drag and Drop')
+      last_response.body.should_not include('Upload your photos')
     end
 
     it "should render uploader if oauth_verified" do
       oauth_verified
       get '/'
       last_response.should be_ok
-      last_response.body.should include('Drag and Drop')
+      last_response.body.should include('Upload your photos')
       last_response.body.should_not include('Request Access')
     end
 
@@ -87,9 +87,9 @@ describe Wepload::Server do
 
   describe "/upload" do
     it "should process uploaded file" do
-      uploader = mock(Wepload::Uploader)
+      uploader = mock(DropIt::Uploader)
       uploader.should_receive(:process!)
-      Wepload::Uploader.stub!(:new).and_return(uploader)
+      DropIt::Uploader.stub!(:new).and_return(uploader)
 
       post '/upload', { :files => [{:tempfile =>'file'}] }
       last_response.should be_ok
@@ -97,9 +97,9 @@ describe Wepload::Server do
     end
 
     it "should not process if no files uploaded" do
-      uploader = mock(Wepload::Uploader)
+      uploader = mock(DropIt::Uploader)
       uploader.should_not_receive(:process!)
-      Wepload::Uploader.stub!(:new).and_return(uploader)
+      DropIt::Uploader.stub!(:new).and_return(uploader)
 
       post '/upload', { }
       last_response.should be_ok

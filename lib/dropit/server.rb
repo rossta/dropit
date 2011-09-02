@@ -12,7 +12,7 @@ require 'sinatra/logging'
 require 'sinatra/oauth'
 require 'sinatra/redis'
 
-module Wepload
+module DropIt
   class Server < Sinatra::Base
     use Rack::Flash
     register Sinatra::Environment

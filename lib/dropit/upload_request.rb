@@ -1,4 +1,4 @@
-module Wepload
+module DropIt
   class UploadRequest
     class << self
       def post(*args)

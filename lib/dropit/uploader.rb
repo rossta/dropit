@@ -1,6 +1,6 @@
 require 'typhoeus'
 
-module Wepload
+module DropIt
 
   class Uploader
     attr_accessor :access_token, :params

@@ -14,14 +14,14 @@ Bundler.require(:default, :test)
 dir = File.dirname(File.expand_path(__FILE__))
 $LOAD_PATH.unshift(dir, 'lib')
 
-require 'wepload'
+require 'dropit'
 
 RSpec.configure do |config|
   config.mock_with :rspec
 end
 
 def app
-  Wepload::Server
+  DropIt::Server
 end
 
 class SessionData
@@ -68,4 +68,4 @@ end
 
 puts "Starting redis for testing at localhost:9736..."
 `redis-server #{dir}/redis-spec.conf`
-# Wepload.redis = 'localhost:9736'
+# DropIt.redis = 'localhost:9736'

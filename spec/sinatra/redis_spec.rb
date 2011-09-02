@@ -3,11 +3,11 @@ require 'redis'
 
 describe Sinatra::Redis do
 
-  class Wepload::TestApp < Sinatra::Base
+  class DropIt::TestApp < Sinatra::Base
   end
 
   def test_app
-    Wepload::TestApp
+    DropIt::TestApp
   end
 
 

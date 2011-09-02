@@ -1,4 +1,4 @@
 require './app'
 
 use Rack::ShowExceptions
-run Wepload::Server.new
+run DropIt::Server.new
