@@ -10,6 +10,8 @@ gem "rack-flash"
 
 gem "redis"
 
+gem "static_fm", :path => '/Users/ross/projects/static_fm'
+
 group :development, :test do
   gem "rake"
   gem "rack-test"

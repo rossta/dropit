@@ -1,3 +1,9 @@
+PATH
+  remote: /Users/ross/projects/static_fm
+  specs:
+    static_fm (0.1.0)
+      typhoeus
+
 GEM
   remote: http://rubygems.org/
   specs:
@@ -88,5 +94,6 @@ DEPENDENCIES
   ruby-debug
   ruby-debug19
   sinatra
+  static_fm!
   thin
   typhoeus

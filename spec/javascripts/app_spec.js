@@ -1,17 +1,24 @@
 describe("WP", function() {
-  var data, reader;
+  var data, reader, html, app;
   data = new FormData;
   reader = new FileReader;
+  html = loadFile('/__spec__/fixtures/index.erb');
 
   beforeEach(function() {
-    $("<div id='overlay'>").appendTo('body');
+
+    Factory.define('medium', WP.Medium, {
+      "type":"KImage", "height":474, "k_entry_id":"0_rj5efqxi", "width":355
+    });
+
     spyOn(WP.Utils, 'formData').andReturn(data);
     spyOn(WP.Utils, 'fileReader').andReturn(reader);
     spyOn(reader, 'readAsDataURL');
+    fixture(html);
   });
 
   afterEach(function() {
-    $('#overlay').remove();
+    $("#overlay").remove();
+    removeFixtures();
   });
 
   it("should be defined", function() {
@@ -19,7 +26,7 @@ describe("WP", function() {
   });
 
   describe("App", function() {
-    var app, files;
+    var files;
 
     beforeEach(function() {
       app = new WP.App();
@@ -199,22 +206,15 @@ describe("WP", function() {
   });
 
   describe("View", function() {
-    var view, app, html;
-
-    html = loadFile('/__spec__/index.erb');
+    var view;
 
     beforeEach(function() {
       app = new WP.App();
       view = app.view;
-      fixture(html);
-    });
-
-    afterEach(function() {
-      removeFixtures();
     });
 
     it("should be defined", function() {
-      expect(WP.View).toEqual(jasmine.any(Function));
+      expect(WP.UploadStatus).toEqual(jasmine.any(Function));
     });
 
     describe("drop", function() {
@@ -263,6 +263,26 @@ describe("WP", function() {
 
     describe("formData", function() {
 
+    });
+  });
+
+  describe("WP.Medium", function() {
+    it("should initialize with given attributes", function() {
+      medium = Factory.create("medium");
+      expect(medium.get('k_entry_id')).toEqual('0_rj5efqxi');
+    });
+  });
+
+  describe("WP.Thumbnail", function() {
+    var view, medium;
+
+    beforeEach(function() {
+      medium = Factory.create('medium');
+    });
+
+    it('should render url for img src', function() {
+      view = new WP.Thumbnail({ model: medium });
+      expect($(view.el).html()).toMatch(medium.get('k_entry_id'));
     });
   });
 

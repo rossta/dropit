@@ -82,7 +82,7 @@
 //  // Update and show the upload box
 //  var label = (files.length == 1 ? " file" : " files");
 //  $("#upload-count").html(files.length + label);
-//  $("#upload-thumbnail-list").fadeIn(125);
+//  $("#upload-results").fadeIn(125);
 //  
 //  // Process each of the dropped files individually
 //  for(var i = 0, length = files.length; i < length; i++) {
@@ -223,17 +223,17 @@ function uploadFile(file, totalFiles) {
              markup += "  <div style='clear: both;'></div>"
              markup += "</div>";
              
-             $("#upload-thumbnail-list").append(markup);
+             $("#upload-results").append(markup);
              
              // Add focus listener to the new text fields to make copying easier
-             $("#upload-thumbnail-list input[type=text]").hover(
+             $("#upload-results input[type=text]").hover(
                function(){
                  this.select();
                }, function() {
                  this.selectionStart = this.selectionEnd = -1;
              });
              // And a click listener, otherwise the behavior feels weird/difficult.
-             $("#upload-thumbnail-list input[type=text]").click(function(){
+             $("#upload-results input[type=text]").click(function(){
                this.select();
              });
            } else {
@@ -261,7 +261,7 @@ function uploadFile(file, totalFiles) {
              markup += "  <div style='clear: both;'></div>"
              markup += "</div>";
              
-             $("#upload-thumbnail-list").append(markup);
+             $("#upload-results").append(markup);
            }
          }
        });
