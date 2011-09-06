@@ -10,10 +10,5 @@ test:
   site: "http://www.example.com"
   redis_url: "redis://127.0.0.1:9736/0"
 
-staging:
-  consumer_key: "CN8a9ikL5nWbgWIeo6V3"
-  consumer_secret: "H3Ik2WfbE8SSgwtC8YUPanw9zeMqqeS0eoI2G262"
-  site: "http://www.qaweplay.com"
-
 # production:
 # Configured via heroku config environment variables
