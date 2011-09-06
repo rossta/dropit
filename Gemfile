@@ -10,7 +10,6 @@ gem "rack-flash"
 
 gem "redis"
 
-gem "static_fm", :path => '/Users/ross/projects/static_fm'
 
 group :development, :test do
   gem "rake"
@@ -19,5 +18,7 @@ group :development, :test do
   gem 'ruby-debug', :platforms => :ruby_18
   gem 'ruby-debug19', :require => 'ruby-debug', :platforms => :ruby_19
   gem "jasmine"
+  gem "static_fm"
+  # gem "static_fm", :path => '/Users/ross/projects/static_fm'
   # gem 'jasmine-headless-webkit'
 end
