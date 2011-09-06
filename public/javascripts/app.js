@@ -38,10 +38,13 @@
 
     fileReader: function() {
       return new FileReader();
+    },
+
+    domId: function(model) {
+      return ("" + model.className +"_"+ model.id).toLowerCase();
     }
 
   };
-
 
   WP.App = function(settings) {
     var self = this;
@@ -279,9 +282,12 @@
   */
 
   WP.Medium = Backbone.Model.extend({
+
     src: function() {
       return ["http://cdn2.kaltura.com/p/56612/thumbnail/entry_id",this.get('k_entry_id'),"width/210/height/133/type/3/quality/75"].join('/');
-    }
+    },
+
+    className: "Medium"
   });
 
   WP.MediumCollection = Backbone.Collection.extend({
@@ -290,7 +296,7 @@
 
   WP.Media = new WP.MediumCollection;
   // Development data
-  // WP.Media.add([{"restricted":true,"created_at":"2011-09-06T14:03:23-04:00","album_id":891,"uploader_id":15,"id":5540,"type":"KImage","k_status":"2","caption":null,"height":540,"k_entry_id":"1_j64vxbq6","comments_count":0,"width":470},{"restricted"=>true, "created_at"=>"2011-09-06T14:14:20-04:00", "album_id"=>891, "uploader_id"=>15, "id"=>5541, "type"=>"KImage", "k_status"=>"2", "caption"=>nil, "height"=>666, "k_entry_id"=>"0_ifjpbaok", "comments_count"=>0, "width"=>930}])
+  // WP.Media.add([{"restricted":true,"created_at":"2011-09-06T14:03:23-04:00","album_id":891,"uploader_id":15,"id":5540,"type":"KImage","k_status":"2","caption":null,"height":540,"k_entry_id":"1_j64vxbq6","comments_count":0,"width":470},{"restricted":true, "created_at":"2011-09-06T14:14:20-04:00", "album_id":891, "uploader_id":15, "id":5541, "type":"KImage", "k_status":"2", "caption":null, "height":666, "k_entry_id":"0_ifjpbaok", "comments_count":0, "width":930}])
 
   /*
     Views
@@ -307,9 +313,11 @@
       _.bindAll(self);
       app.bind("drop", self.drop);
       app.bind("uploadstart", self.uploadstart);
+      app.bind("uploadend", self.uploadend);
+
       WP.Media.bind("add", function(medium) {
-        var el = new WP.Thumbnail({ model: medium }).el;
-        self.$("#upload-results").append(el);
+        self.$("#upload-thumbnail-list").append(new WP.Thumbnail({ model: medium, id: WP.Utils.domId(medium) }).el);
+        self.$("#upload-results").show();
       });
 
       self.render();
@@ -339,6 +347,12 @@
       var self = this, fileTotal = files.length, label = (fileTotal == 1 ? " file" : " files");
       self.$("#upload-count").html(fileTotal + label);
       self.$("#upload-results").fadeIn(125);
+      self.$("#upload-animation").show();
+    },
+
+    uploadend: function() {
+      var self = this;
+      self.$("#upload-animation").hide();
     }
   });
 
@@ -351,6 +365,8 @@
       self.template = _.template($("#thumbnail-template").html());
       self.render();
     },
+
+    className: "thumbnail",
 
     render: function() {
       $(this.el).html(this.template({ medium: this.medium }));

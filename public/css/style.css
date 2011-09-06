@@ -319,9 +319,9 @@ p {
     background: transparent url(/img/frame-background.png) repeat;
 }
 header {
-    letter-spacing: 0.08em;
-    text-shadow: 1px 1px 1px #666;
-    width: 200px;
+  letter-spacing: 0.08em;
+  font-weight
+  width: 200px;
 }
 header a, header a:visited, header a:hover,
 #toolbar a, #toolbar a:visited, #toolbar a:hover {
@@ -332,6 +332,12 @@ header a, header a:visited, header a:hover,
 #toolbar header img { margin-right:10px;}
 header img {
     vertical-align: middle;
+}
+.text-shadow-white {
+  text-shadow: 1px 1px 1px #fff;
+}
+.text-shadow-black {
+  text-shadow: 1px 1px 1px #000;
 }
 #browser-warning {
   background-color: #FFDAD9;
@@ -350,11 +356,9 @@ header img {
 #upload-status-text {
   font-size: 150%;
   padding-top: 1.5em;
-  text-shadow: 1px 1px 1px #FFFFFF;
 }
 #upload-details {
   color: #666666;
-  text-shadow: 1px 1px 1px #FFFFFF;
 }
 #upload-status-progressbar {
     display: none;
@@ -365,48 +369,29 @@ header img {
 #upload-results {
   display: none;
   padding: 2em;
+  text-align:left;
 }
 #upload-header {
     border-bottom: 1px solid #DDDDDD;
     padding-bottom: 0.5em;
 }
-#upload-header #upload-title {
-    font-size: 200%;
-    text-shadow: 1px 1px 1px #CCCCCC;
+.upload-title {
+  font-size: 150%;
 }
 #upload-header #upload-count {
-    float: right;
-    font-size: 110%;
-    padding-top: 0.75em;
-    text-shadow: 1px 1px 1px #CCCCCC;
+  float: right;
+  font-size: 110%;
+  padding-top: 0.75em;
 }
-#upload-results .resultBox {
+#upload-results .thumbnail {
     border-bottom: 1px solid #EDEDED;
     margin-top: 1em;
     padding-bottom: 1em;
 }
-#upload-results ul {
-    list-style-type: none;
-    padding-left: 0;
-}
-#upload-results ul li:nth-child(2n) {
-    padding-bottom: 1em;
-}
-#upload-results ul li .label {
-    float: left;
-    width: 5.2em;
-}
-#upload-results ul li .details {
-    color: #888888;
-    font-size: 75%;
-    padding-left: 7.5em;
-}
-#upload-results ul li input {
-    background-color: #EEEEEE;
-    border: 1px solid #BBBBBB;
-    color: #343434;
-    font-size: 90%;
-    width: 20em;
+.thumbnail-frame {
+  padding:1em;
+  background:white;
+  box-shadow: rgba(0, 0, 0, 0.1) 0 2px 6px;
 }
 noscript {
     color: #BBBBBB;
@@ -435,7 +420,6 @@ noscript {
   font-size: 150%;
   padding: 2em;
   margin:0 auto;
-  text-shadow: 1px 1px 1px #FFFFFF;
   width:480px;
 }
 

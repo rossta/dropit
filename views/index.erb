@@ -1,4 +1,4 @@
-<div id="main">
+<div id="main" class="text-shadow-white">
 
   <noscript>
     <form id="noscript-upload" action="/upload" enctype="multipart/form-data" method="post">
@@ -6,15 +6,6 @@
       <input id="files" name="files" type="file" multiple onchange="document.getElementById('uploadform').submit();" />
     </form>
 	</noscript>
-
-  <div id="upload-results">
-    <div id="upload-header">
-      <span id="upload-title">Uploads</span>
-      <img id="upload-animation" src="/img/loading.gif" />
-      <span id="upload-count"></span>
-    </div>
-    <ul id="upload-thumbnail-list"></ul>
-  </div>
 
   <form action="/upload" method="post" accept-charset="utf-8" enctype="multipart/form-data" class="xhr hidden">
     <p><input type="file" value="Multi-browse &rarr;" name="files[]" multiple></p>
@@ -26,16 +17,23 @@
   <p id="upload-status-text">Upload your photos to Weplay</p>
   <p id="upload-details">Drag and drop photos from your file system into the window to start uploading.</p>
   <div id="upload-status-progressbar"></div>
+  <div id="upload-results">
+    <div id="upload-header">
+      <span class="upload-title">Uploads<img id="upload-animation" src="/img/loading.gif" /></span>
+      <span id="upload-count"></span>
+    </div>
+    <div id="upload-thumbnail-list"></div>
+  </div>
 </script>
 <script id="overlay-template" type="text/html" charset="utf-8">
   <div class="table expand-width expand-height">
     <div class="cell text-center">
-      <h1>Drop files anywhere to upload...</h1>
+      <h1 class="text-shadow-white">Drop files anywhere to upload...</h1>
     </div>
   </div>
 </script>
 <script id="thumbnail-template" type="text/html" charset="utf-8">
-  <div class="resultBox">
-    <span class="thumbnail-container"><img width="150" src="{{medium.src()}}"/></span>
+  <div class="thumbnail-table table">
+    <div class="thumbnail-frame cell"><img width="150" src="{{medium.src()}}" alt="{{medium.filename}}"/></div>
   </div>
 </script>
