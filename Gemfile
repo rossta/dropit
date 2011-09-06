@@ -17,4 +17,5 @@ group :development, :test do
   gem 'ruby-debug', :platforms => :ruby_18
   gem 'ruby-debug19', :require => 'ruby-debug', :platforms => :ruby_19
   gem "jasmine"
+  # gem 'jasmine-headless-webkit'
 end

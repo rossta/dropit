@@ -344,7 +344,7 @@ header img {
   text-align: center;
 }
 #upload-box {
-  min-height: 150px;
+  min-height: 75px;
 }
 #upload-status-text {
   font-size: 150%;

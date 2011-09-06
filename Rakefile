@@ -25,3 +25,5 @@ end
 desc 'Default: run specs.'
 task :default => [:spec, "jasmine:ci"]
 
+require 'static_fm'
+load 'static_fm/tasks/static_fm.rake'

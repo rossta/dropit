@@ -4,9 +4,14 @@ describe("WP", function() {
   reader = new FileReader;
 
   beforeEach(function() {
+    $("<div id='overlay'>").appendTo('body');
     spyOn(WP.Utils, 'formData').andReturn(data);
     spyOn(WP.Utils, 'fileReader').andReturn(reader);
     spyOn(reader, 'readAsDataURL');
+  });
+
+  afterEach(function() {
+    $('#overlay').remove();
   });
 
   it("should be defined", function() {
@@ -59,9 +64,9 @@ describe("WP", function() {
 
     describe("uploadFile", function() {
       it("should create send a new upload", function() {
-        spyOn(WP.Upload, "send");
-        expect(app.uploadFile("file", 1));
-        expect(WP.Upload.send).toHaveBeenCalledWith("file", 1);
+        spyOn(WP.Upload, "create");
+        app.uploadFile("file", 1);
+        expect(WP.Upload.create).toHaveBeenCalledWith("file", 1, { uploadend: jasmine.any(Function)});
       });
     });
   });
@@ -108,7 +113,7 @@ describe("WP", function() {
           upload.trigger("bar", "foo", 1);
           expect(callback).not.toHaveBeenCalled();
         });
-      }),
+      });
 
       describe("initialize", function() {
         beforeEach(function() {
