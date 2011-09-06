@@ -8,11 +8,11 @@ module DropIt
       @access_token, @params = access_token, params
     end
 
-    def process!
-      response = UploadSessionRequest.post(access_token)
-      FileUploadRequest.post(response['upload_url'], params)
-      response_2 = CreateMediumRequest.post(access_token, response['upload_token_id'])
-      response_2
+    def process
+      session_response = UploadSessionRequest.post(access_token)
+      FileUploadRequest.post(session_response['upload_url'], params)
+      create_response = CreateMediumRequest.post(access_token, session_response['upload_token_id'], params)
+      create_response
     end
   end
 

@@ -52,6 +52,7 @@ describe DropIt::UploadRequest do
       @response = mock('Response', :body => "\{\"medium\":\{\"id\":5469,\"type\":\"KImage\",\"height\":474,\"k_entry_id\":\"0_rj5efqxi\",\"width\":355\}\}")
       @access_token = mock(OAuth::AccessToken, :post => @response)
     end
+
     describe "self.post" do
       it "should post an create medium request" do
         request = mock(DropIt::CreateMediumRequest, :post => nil)
@@ -64,9 +65,12 @@ describe DropIt::UploadRequest do
         DropIt::CreateMediumRequest.post(@access_token, "abc123")
       end
 
-      it "should return the response body as json" do
-        json = DropIt::CreateMediumRequest.post(@access_token, "abc123")
-        json['medium']['k_entry_id'].should == "0_rj5efqxi"
+      it "should return the response body merged with file params as json" do
+        json = DropIt::CreateMediumRequest.post(@access_token, "abc123", { :filename => "image.jpg", :size => 128, :type => "image/jpeg"})
+        json['k_entry_id'].should == "0_rj5efqxi"
+        json['filename'].should == "image.jpg"
+        json['type'].should == "image/jpeg"
+        json['size'].should == 128
       end
     end
   end

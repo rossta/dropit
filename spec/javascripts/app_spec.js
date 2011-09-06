@@ -146,11 +146,11 @@ describe("WP", function() {
               type: 'POST',
               url: '/upload',
               data: data,
+              xhr: jasmine.any(Function),
               cache: false,
               contentType: false,
               processData: false,
               timeout: 60000,
-              beforeSend: jasmine.any(Function),
               error: jasmine.any(Function),
               success: jasmine.any(Function)
             });

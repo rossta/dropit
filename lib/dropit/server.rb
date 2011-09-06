@@ -64,7 +64,7 @@ module DropIt
       if files && files.any?
 
         images = files.map do |file_params|
-          Uploader.new(access_token, file_params).process!
+          Uploader.new(access_token, file_params).process
         end
 
         notice = "Success"
@@ -100,6 +100,7 @@ module DropIt
 
     get "/clear-session" do
       session.clear
+      request.cookies.clear
       redirect to("/")
     end
 

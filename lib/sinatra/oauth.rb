@@ -9,8 +9,8 @@ module Sinatra
 
       def access_token
         @access_token ||= begin
-          return nil unless session[:access_token]
-          Marshal.load(redis.get(session[:access_token]))
+          return nil unless token = request.cookies["access_token"]
+          Marshal.load(redis.get(token))
         end
       end
 
@@ -54,15 +54,16 @@ module Sinatra
 
         token_key = atoken.token
         @access_token = nil
-        session[:access_token] = token_key
+
+        response.set_cookie "access_token", token_key
         redis.set token_key, Marshal.dump(atoken)
       end
 
     end
 
-     def self.registered(app)
-       app.helpers Sinatra::Oauth::Helpers
-     end
+    def self.registered(app)
+     app.helpers Sinatra::Oauth::Helpers
+    end
   end
 
 end

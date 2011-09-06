@@ -21,15 +21,15 @@ module DropIt
   end
 
   class FileUploadRequest < UploadRequest
-    attr_accessor :path, :params
-    def initialize(path, params)
-      @path, @params = path, params
+    attr_accessor :path, :file_params
+    def initialize(path, file_params)
+      @path, @file_params = path, file_params
     end
 
     def post
-      file = File.new(params[:tempfile])
+      file = File.new(file_params[:tempfile])
       Typhoeus::Request.post(path, :params => {
-          :title => params[:filename] || "",
+          :title => file_params[:filename] || "",
           :fileData => file
         }
       )
@@ -39,13 +39,21 @@ module DropIt
   class CreateMediumRequest < UploadRequest
     include Routes
 
-    attr_accessor :access_token, :upload_token_id
-    def initialize(access_token, upload_token_id)
-      @access_token, @upload_token_id = access_token, upload_token_id
+    attr_accessor :access_token, :upload_token_id, :file_params
+    def initialize(access_token, upload_token_id, file_params = {})
+      @access_token, @upload_token_id, @file_params = access_token, upload_token_id, file_params
     end
 
     def post
-      JSON.parse(access_token.post(media_create_from_upload_path, { :upload_token_id => upload_token_id }).body)
+      response = access_token.post(media_create_from_upload_path, { :upload_token_id => upload_token_id }).body
+      json = JSON.parse(response)['medium']   # flatten json root
+      json.merge(extracted_file_params)
+    end
+
+    def extracted_file_params
+      {}.tap do |params|
+        [:filename, :size, :type].each { |key| params[key.to_s] = file_params[key] }
+      end
     end
   end
 end

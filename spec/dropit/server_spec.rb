@@ -88,7 +88,7 @@ describe DropIt::Server do
   describe "/upload" do
     it "should process uploaded file" do
       uploader = mock(DropIt::Uploader)
-      uploader.should_receive(:process!)
+      uploader.should_receive(:process)
       DropIt::Uploader.stub!(:new).and_return(uploader)
 
       post '/upload', { :files => [{:tempfile =>'file'}] }
@@ -98,7 +98,7 @@ describe DropIt::Server do
 
     it "should not process if no files uploaded" do
       uploader = mock(DropIt::Uploader)
-      uploader.should_not_receive(:process!)
+      uploader.should_not_receive(:process)
       DropIt::Uploader.stub!(:new).and_return(uploader)
 
       post '/upload', { }

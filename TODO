@@ -1,20 +1,4 @@
 OAuth
-- Long lived access token
-  http://code.google.com/p/oauth-plugin/wiki/AccessToken
-
-  # Marshaling access token
-  File.open('at.dmp', 'w+') do |f|
-    Marshal.dump(access_token, f)
-  end
-  From then on, do this.
-
-  access_token = nil
-  File.open('at.dmp') do |f|
-    access_token = Marshal.load(f)
-  end
-
-  @accesstoken = OAuth::AccessToken.new(@consumer, access_token, access_token_secret)
-
 - rename /callback
 
 On page load

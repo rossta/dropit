@@ -26,12 +26,12 @@ describe DropIt::Uploader do
     DropIt::Uploader.new(@access_token, params(extra_params))
   end
 
-  describe "process!" do
+  describe "process" do
     it "should queue posts to upload file" do
       DropIt::UploadSessionRequest.should_receive(:post).ordered.with(@access_token).and_return(@upload_session)
       DropIt::FileUploadRequest.should_receive(:post).ordered.with(@upload_session['upload_url'], params)
-      DropIt::CreateMediumRequest.should_receive(:post).ordered.with(@access_token, @upload_session['upload_token_id'])
-      uploader.process!
+      DropIt::CreateMediumRequest.should_receive(:post).ordered.with(@access_token, @upload_session['upload_token_id'], params)
+      uploader.process
     end
   end
 

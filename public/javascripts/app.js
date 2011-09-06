@@ -179,6 +179,15 @@
     send: function() {
       var self = this;
       var data = WP.Utils.formData();
+      var provider = function() {
+        var xhr = jQuery.ajaxSettings.xhr();
+        if (xhr.upload) {
+          xhr.upload.addEventListener('progress', function (event) {
+            console.log("progress", event);
+          }, false);
+        }
+        return xhr;
+      };
 
       data.append("files[]", self.file);
 
@@ -190,31 +199,28 @@
         url: '/upload',
         type: 'POST',
         data: data,
+        xhr: provider,
         cache: false,
         contentType: false,
         processData: false,
 
         timeout: 60000, // 1 min timeout
 
-        beforeSend: self.beforeSend,
         error: function(XMLHttpRequest, textStatus, errorThrown) {
           console.log("Upload error");
           console.log.apply(console, arguments);
         },
 
         success: function(response) {
-          // {"medium":{"id":5469, "type":"KImage", "height":474, "k_entry_id":"0_rj5efqxi", "width":355}}
+          // [{"id":5469, "type":"KImage", "height":474, "k_entry_id":"0_rj5efqxi", "width":355 }, ... ]
           // handle bad response
-          // update status
-          // this.trigger("")
-
-          $("#upload-status-text").html(self.file.name + " uploaded!");
 
           console.log("Successful upload!");
           console.log.apply(console, arguments);
+          // Flatten root 'medium' from json response
+          // var media = _(response.images).map(function(result) { return result.medium; });
 
-          var media = _(response.images).map(function(result) { return result.medium; });
-          if (self.uploadend) self.uploadend(media);
+          if (self.uploadend) self.uploadend(response.images);
         }
       });
 
@@ -226,15 +232,6 @@
 
     onloadend: function(event) {
       this.send(event.target.result);
-    },
-
-    beforeSend: function(jqxhr, settings) {
-      // jqxhr.xhr.upload.addEventListener("progress", function(e) {
-      //         if (e.lengthComputable) {
-      //           var percentage = Math.round((e.loaded * 100) / e.total);
-      //           console.log(percentage);
-      //         }
-      //       }, false);
     },
 
     errorMessage: function(errorCode) {
@@ -284,7 +281,16 @@
   WP.Medium = Backbone.Model.extend({
 
     src: function() {
-      return ["http://cdn2.kaltura.com/p/56612/thumbnail/entry_id",this.get('k_entry_id'),"width/210/height/133/type/3/quality/75"].join('/');
+      // return ["http://cdn2.kaltura.com/p/56612/thumbnail/entry_id", this.get('k_entry_id'),"width/210/height/133/type/3/quality/75"].join('/');
+      return ["http://cdn2.kaltura.com/p/56612/thumbnail/entry_id", this.get('k_entry_id'),"width/190/type/3/quality/75"].join('/');
+    },
+
+    albumURL: function() {
+      return ["http://www.weplay.com/users/ross/pics-photos", this.get("album_id")].join('/');
+    },
+
+    detailURL: function() {
+      return [this.albumURL(), this.id].join("/");
     },
 
     className: "Medium"
@@ -318,6 +324,7 @@
       WP.Media.bind("add", function(medium) {
         self.$("#upload-thumbnail-list").append(new WP.Thumbnail({ model: medium, id: WP.Utils.domId(medium) }).el);
         self.$("#upload-results").show();
+        self.$("#upload-status-text").html(medium.get('filename') + " uploaded!");
       });
 
       self.render();
@@ -345,6 +352,7 @@
 
     uploadstart: function(files) {
       var self = this, fileTotal = files.length, label = (fileTotal == 1 ? " file" : " files");
+      self.$("#upload-status-text").html("Uploading...");
       self.$("#upload-count").html(fileTotal + label);
       self.$("#upload-results").fadeIn(125);
       self.$("#upload-animation").show();
