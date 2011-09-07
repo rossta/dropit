@@ -57,9 +57,9 @@
       var self = this, $el = $("#main");
       _.bindAll(self);
       $el.prepend(new WP.UploadStatus({ app: self }).el);
-
       self.overlayView = new WP.Overlay({ app: self });
       self.listen(self.overlayView);
+      WP.Groups.fetch();
     },
 
     listen: function(overlayView) {
@@ -81,7 +81,7 @@
       });
 
       overlay.addEventListener('dragleave', function(event) {
-        overlayView.dragleave();
+        overlayView.dragleave(event);
         self.dragleave(event);
         return self.preventDefault(event);
       }, false);
@@ -189,12 +189,11 @@
 
   _.extend(WP.FileReaderUpload.prototype, Backbone.Events, {
     initialize: function() {
-      var self = this;
+      var self = this, reader = self.reader;
       _.bindAll(self);
-      self.reader.onerror = self.onerror;
-      self.reader.onloadend = self.onloadend;
-
-      self.reader.readAsDataURL(self.fileData); // triggers onloadend when complete
+      reader.onerror = self.onerror;
+      reader.onloadend = self.onloadend;
+      reader.readAsDataURL(self.fileData); // triggers onloadend when complete
     },
 
     url: '/upload',
@@ -208,7 +207,9 @@
       // TODO support bulk upload
       // data.append("files[]", self.fileData);
       // url = '/bulk-upload';
+
       data.append("file", self.fileData);
+      data.append("group_id", $("select#group-id").val());
 
       // The contentType option must be set to false, forcing jQuery not to add a Content-Type header,
       // otherwise, the boundary string will be missing from it.
@@ -360,7 +361,16 @@
 
   WP.Media = new WP.MediumCollection;
   // Development data
-  // WP.Media.add([{"restricted":true,"created_at":"2011-09-06T14:03:23-04:00","album_id":891,"uploader_id":15,"id":5540,"type":"KImage","k_status":"2","caption":null,"height":540,"k_entry_id":"1_j64vxbq6","comments_count":0,"width":470},{"restricted":true, "created_at":"2011-09-06T14:14:20-04:00", "album_id":891, "uploader_id":15, "id":5541, "type":"KImage", "k_status":"2", "caption":null, "height":666, "k_entry_id":"0_ifjpbaok", "comments_count":0, "width":930}])
+  // WP.Media.add([{"restricted":true,"created_at":"2011-09-07T14:59:35-04:00","album_id":892,"uploader_id":15,"id":5598,"type":"image/jpeg","k_status":"2","caption":null,"height":400,"k_entry_id":"1_9glubfyr","comments_count":0,"width":400,"filename":"hamburger1.jpg","size":null}])
+
+  WP.Group = Backbone.Model.extend();
+
+  WP.GroupCollection = Backbone.Collection.extend({
+    model: WP.Group,
+    url: '/groups'
+  });
+
+  WP.Groups = new WP.GroupCollection;
 
   // Views
   // -----
@@ -368,12 +378,9 @@
   WP.UploadStatus = Backbone.View.extend({
     initialize: function(opts) {
       opts || (opts = {});
-
       var self = this, app = opts.app;
-
-      self.template = _.template($("#status-template").html());
-
       _.bindAll(self);
+      self.template = _.template($("#status-template").html());
       app.bind("drop", self.drop);
       app.bind("uploadstart", self.uploadstart);
       app.bind("uploadend", self.uploadend);
@@ -396,9 +403,11 @@
         self.$("#upload-thumbnail-list").append(placeholder.el);
       });
 
-      // WP.Files.bind("add", function(file) {
-      // });
-      //
+      WP.Groups.bind("reset", function(collection) {
+        var selector = new WP.GroupSelect({ collection: collection });
+        self.$("#upload-details").after(selector.el);
+      });
+
       self.render();
     },
 
@@ -453,7 +462,9 @@
     templateId: "#thumbnail-template",
 
     render: function() {
-      $(this.el).html(this.template({ medium: this.medium }));
+      var self = this;
+      $(self.el).html(self.template({ medium: self.medium }));
+      return self;
     }
 
   });
@@ -463,18 +474,39 @@
     templateId: "#placeholder-template"
   });
 
+  WP.GroupSelect = Backbone.View.extend({
+
+    initialize: function(opts) {
+      var self = this;
+      self.template = _.template($("#upload-group-selector-template").html());
+      _.bindAll(self);
+      WP.Groups.bind("reset", self.remove);
+      self.render();
+    },
+
+    render: function() {
+      var self = this;
+      if (self.collection.isEmpty()) {
+        self.el = "";
+      } else {
+        $(self.el).html(self.template());
+        self.collection.each(function(group){
+          self.$('select').addOption(group.id, group.escape("name"), false);
+        });
+      }
+      return self;
+    },
+
+    id: "upload-group-selector"
+  });
 
   WP.Overlay = Backbone.View.extend({
 
     initialize: function(opts) {
       opts || (opts = {});
-
       var self = this, app = opts.app;
-
       _.bindAll(self);
-
       app.bind('teardown.wp', self.remove);
-
       self.template = _.template($("#overlay-template").html());
       self.render();
     },
@@ -500,10 +532,11 @@
        * We have to double-check the 'leave' event state because this event stupidly
        * gets fired by JavaScript when you mouse over the child of a parent element;
        */
-      if( event.pageX < 10 ||
-          event.pageY < 10 ||
-          $(window).width() - event.pageX < 10  ||
-          $(window).height - event.pageY < 10) {
+
+      if( event.pageX < 50 ||
+          event.pageY < 50 ||
+          $(window).width() - event.pageX < 50  ||
+          $(window).height() - event.pageY < 50) {
           this.fadeOut(125);
       }
     },

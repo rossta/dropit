@@ -55,11 +55,19 @@ module DropIt
       end
     end
 
+    get "/groups" do
+      log_request
+      halt 403 unless oauth_verified?
+      content_type :json
+      GroupsRequest.get(access_token).to_json
+    end
+
     post "/upload" do
       log_request
+      halt 403 unless oauth_verified?
 
       if file_params = params[:file]
-        image = Uploader.new(access_token, file_params).process
+        image = Uploader.new(access_token, file_params.merge(:group_id => params[:group_id])).process
 
         if request.xhr?
           content_type :json
@@ -81,8 +89,8 @@ module DropIt
     end
 
     post "/bulk-upload" do
-      # handle not oauth_verified?
       log_request
+      halt 403 unless oauth_verified?
 
       files = params[:files]
 
@@ -103,7 +111,6 @@ module DropIt
           flash[:notice] = notice
           erb :index
         end
-
       else
         notice = "No files sent"
         if request.xhr?

@@ -1,16 +1,24 @@
 describe("WP", function() {
-  var data, reader, html, app, files;
+  var data, reader, html, app, files, groups;
   data = new FormData;
   reader = new FileReader;
   html = loadFile('/__spec__/fixtures/index.erb');
 
   beforeEach(function() {
-
     Factory.define('medium', WP.Medium, {
       "type":"KImage", "height":474, "k_entry_id":"0_rj5efqxi", "width":355, "album_id": 891,
       "album_attachable_type": "User", "album_attachable_id": 15, "album_title": "Uploads"
     });
 
+    Factory.define('group', WP.Group, { "id": 76, "name": "Tigers" });
+
+    WP.Media.reset();
+
+    spyOn(WP.Groups, "fetch").andCallFake(function() {
+      WP.Groups.reset([
+        { "id": 1, "name": "Tigers" }, { "id": 2, "name": "Lions" }
+      ]);
+    });
     spyOn(WP.Utils, 'formData').andReturn(data);
     spyOn(WP.Utils, 'fileReader').andReturn(reader);
     spyOn(reader, 'readAsDataURL');
@@ -32,6 +40,16 @@ describe("WP", function() {
       app = new WP.App();
       files = [{ name: "image1.jpg"}, { name: "image2.jpg"}];
       spyOn(app, "trigger");
+    });
+
+    describe("initialize", function() {
+      it("should render upload status", function() {
+        expect($("#main")).toContain("#upload-status");
+      });
+
+      it('should render group selector', function() {
+        expect($("#main")).toContain("#upload-group-selector");
+      });
     });
 
     it("should be defined", function() {
@@ -146,7 +164,7 @@ describe("WP", function() {
           it('should ajaxify post data', function() {
             upload.opts = {
               success: function() {}
-            }
+            };
             upload.send();
             expect($.ajax).toHaveBeenCalledWith({
               type: 'POST',
@@ -164,6 +182,13 @@ describe("WP", function() {
           it("should build form data", function() {
             upload.send();
             expect(data.append).toHaveBeenCalledWith("file", upload.fileData);
+          });
+
+          it("should send group_id if selected", function() {
+            new WP.App();
+            $("select#group-id").val("2");
+            upload.send();
+            expect(data.append).toHaveBeenCalledWith("group_id", "2");
           });
         });
       });
@@ -233,7 +258,7 @@ describe("WP", function() {
       it("should empty status text", function() {
         $("#upload-details").html("Previous upload finished");
         app.trigger('drop');
-        expect($("#upload-details").html()).toEqual("");
+        expect($("#upload-details").text()).toEqual("");
       });
 
       // it("should reset progress bar", function() {
@@ -365,6 +390,13 @@ describe("WP", function() {
         expect(medium.albumDisplayName()).toEqual(medium.albumURL());
       });
     });
+
+    describe("collection", function() {
+      it("should have a global WP.Media collection", function() {
+        WP.Media.add({ name: 'image.jpg'});
+        expect(WP.Media.length).toEqual(1);
+      });
+    });
   });
 
   describe("WP.Thumbnail", function() {
@@ -400,4 +432,10 @@ describe("WP", function() {
     });
   });
 
+  describe("WP.GroupSelector", function() {
+    it("should return blank if no groups", function() {
+      var groupSelect = new WP.GroupSelect({ collection: new WP.GroupCollection });
+      expect(groupSelect.el).toEqual("");
+    });
+  });
 });

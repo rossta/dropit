@@ -86,29 +86,44 @@ describe DropIt::Server do
   end
 
   describe "/upload" do
-    it "should process uploaded file" do
-      uploader = mock(DropIt::Uploader)
-      uploader.should_receive(:process)
-      DropIt::Uploader.stub!(:new).and_return(uploader)
-
-      post '/upload', { :file => {:tempfile =>'file'} }
-      last_response.should be_ok
-      last_response.body.should include('Success')
+    it "should return 403 if not oauth_verified" do
+      post '/upload'
+      last_response.status.should == 403
     end
 
-    it "should not process if no files uploaded" do
-      uploader = mock(DropIt::Uploader)
-      uploader.should_not_receive(:process)
-      DropIt::Uploader.stub!(:new).and_return(uploader)
+    describe "oauth_verified" do
+      before(:each) do
+        oauth_verified
+      end
 
-      post '/upload', { }
-      last_response.should be_ok
-      last_response.body.include?('No files sent')
+      it "should process uploaded file" do
+        uploader = mock(DropIt::Uploader)
+        uploader.should_receive(:process)
+        DropIt::Uploader.stub!(:new).and_return(uploader)
+
+        post '/upload', { :file => {:tempfile =>'file'} }
+        last_response.should be_ok
+        last_response.status.should == 200
+        last_response.body.should include('Success')
+      end
+
+      it "should not process if no files uploaded" do
+        uploader = mock(DropIt::Uploader)
+        uploader.should_not_receive(:process)
+        DropIt::Uploader.stub!(:new).and_return(uploader)
+
+        post '/upload', { }
+        last_response.should be_ok
+        last_response.body.include?('No files sent')
+      end
     end
 
   end
 
   describe "/bulk-upload" do
+    before(:each) do
+      oauth_verified
+    end
     it "should process uploaded file" do
       uploader = mock(DropIt::Uploader)
       uploader.should_receive(:process)
@@ -127,6 +142,34 @@ describe DropIt::Server do
       post '/bulk-upload', { }
       last_response.should be_ok
       last_response.body.include?('No files sent')
+    end
+  end
+
+  describe "/groups" do
+    it "should return 403 if not verified" do
+      get '/groups'
+      last_response.status.should == 403
+    end
+
+    describe "verified" do
+      # API_ATTRIBUTES = %w[id name type avatar_entry_id description media_count group_messages_count]
+
+      it "should retrieve groups from site" do
+        oauth_verified
+        DropIt::GroupsRequest.stub!(:get).and_return([
+          {
+            :id => 1, :name => "Tigers", :description => "baseball team"
+          },
+          {
+            :id => 2, :name => "Lions", :description => "soccer team"
+          }
+        ])
+        get '/groups'
+        last_response.should be_ok
+        json = JSON.parse(last_response.body)
+        json.first['name'].should == "Tigers"
+        json.last['name'].should == "Lions"
+      end
     end
 
   end
