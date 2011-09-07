@@ -73,6 +73,16 @@ describe DropIt::UploadRequest do
         json['type'].should == "image/jpeg"
         json['size'].should == 128
       end
+      
+      it "should work for deprecated api where 'medium' serves as json root" do
+        response = mock('Response', :body => "\{\"medium\":\{\"id\":5469,\"type\":\"KImage\",\"height\":474,\"k_entry_id\":\"0_rj5efqxi\",\"width\":355\}\}")
+        access_token = mock(OAuth::AccessToken, :post => response)
+        json = DropIt::CreateMediumRequest.post(access_token, "abc123", { :filename => "image.jpg", :size => 128, :type => "image/jpeg"})
+        json['k_entry_id'].should == "0_rj5efqxi"
+        json['filename'].should == "image.jpg"
+        json['type'].should == "image/jpeg"
+        json['size'].should == 128
+      end
     end
   end
 end

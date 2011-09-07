@@ -46,7 +46,11 @@ module DropIt
 
     def post
       response = access_token.post(media_create_from_upload_path, { :upload_token_id => upload_token_id }).body
-      JSON.parse(response).merge(extracted_file_params)
+      json = JSON.parse(response)
+
+      json = json['medium'] if json['medium'] # To support deprecated API for 'medium' in json root
+
+      json.merge(extracted_file_params)
     end
 
     def extracted_file_params
