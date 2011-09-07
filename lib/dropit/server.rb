@@ -56,6 +56,31 @@ module DropIt
     end
 
     post "/upload" do
+      log_request
+
+      if file_params = params[:file]
+        image = Uploader.new(access_token, file_params).process
+
+        if request.xhr?
+          content_type :json
+          puts "Medium upload complete: #{image.inspect}"
+          image.to_json
+        else
+          flash[:notice] = "Success"
+          erb :index
+        end
+      else
+        notice = "No files sent"
+        if request.xhr?
+          notice
+        else
+          flash[:notice] = notice
+          erb :index
+        end
+      end
+    end
+
+    post "/bulk-upload" do
       # handle not oauth_verified?
       log_request
 

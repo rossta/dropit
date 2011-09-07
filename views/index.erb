@@ -1,5 +1,4 @@
 <div id="main" class="text-shadow-white">
-
   <noscript>
     <form id="noscript-upload" action="/upload" enctype="multipart/form-data" method="post">
       (*JS Disabled) Manual Upload&nbsp;&nbsp;
@@ -22,6 +21,7 @@
       <span class="upload-title">Uploads&nbsp;<img id="upload-animation" src="/img/loading.gif" /></span>
       <span id="upload-count"></span>
     </div>
+    <div id="upload-placeholder-list"></div>
     <div id="upload-thumbnail-list"></div>
   </div>
 </script>
@@ -30,6 +30,14 @@
     <div class="cell text-center">
       <h1 class="text-shadow-white">Drop files anywhere to upload...</h1>
     </div>
+  </div>
+</script>
+<script id="placeholder-template" type="text/html" charset="utf-8">
+  <div class="placeholder-table table">
+    <div class="text-cell" style='width:190px;'>
+      <p>{{medium.get('name')}} uploading...</p>
+    </div>
+    <div class="cell progress"></div>
   </div>
 </script>
 <script id="thumbnail-template" type="text/html" charset="utf-8">

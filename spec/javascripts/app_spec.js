@@ -1,5 +1,5 @@
 describe("WP", function() {
-  var data, reader, html, app;
+  var data, reader, html, app, files;
   data = new FormData;
   reader = new FileReader;
   html = loadFile('/__spec__/fixtures/index.erb');
@@ -7,7 +7,7 @@ describe("WP", function() {
   beforeEach(function() {
 
     Factory.define('medium', WP.Medium, {
-      "type":"KImage", "height":474, "k_entry_id":"0_rj5efqxi", "width":355,
+      "type":"KImage", "height":474, "k_entry_id":"0_rj5efqxi", "width":355, "album_id": 891,
       "album_attachable_type": "User", "album_attachable_id": 15, "album_title": "Uploads"
     });
 
@@ -27,7 +27,6 @@ describe("WP", function() {
   });
 
   describe("App", function() {
-    var files;
 
     beforeEach(function() {
       app = new WP.App();
@@ -73,8 +72,11 @@ describe("WP", function() {
     describe("uploadFile", function() {
       it("should create send a new upload", function() {
         spyOn(WP.Upload, "create");
-        app.uploadFile("file", 1);
-        expect(WP.Upload.create).toHaveBeenCalledWith("file", 1, { uploadend: jasmine.any(Function)});
+        app.uploadFile("file");
+        expect(WP.Upload.create).toHaveBeenCalledWith("file", {
+          success: jasmine.any(Function),
+          error: jasmine.any(Function)
+        });
       });
     });
   });
@@ -142,6 +144,9 @@ describe("WP", function() {
         describe("valid data", function() {
 
           it('should ajaxify post data', function() {
+            upload.opts = {
+              success: function() {}
+            }
             upload.send();
             expect($.ajax).toHaveBeenCalledWith({
               type: 'POST',
@@ -152,14 +157,13 @@ describe("WP", function() {
               contentType: false,
               processData: false,
               timeout: 60000,
-              error: jasmine.any(Function),
               success: jasmine.any(Function)
             });
           });
 
           it("should build form data", function() {
             upload.send();
-            expect(data.append).toHaveBeenCalledWith("files[]", upload.file);
+            expect(data.append).toHaveBeenCalledWith("file", upload.fileData);
           });
         });
       });
@@ -212,6 +216,7 @@ describe("WP", function() {
     beforeEach(function() {
       app = new WP.App();
       view = app.view;
+      files = [{ name: "image1.jpg"}, { name: "image2.jpg"}];
     });
 
     it("should be defined", function() {
@@ -231,10 +236,20 @@ describe("WP", function() {
         expect($("#upload-details").html()).toEqual("");
       });
 
-      it("should reset progress bar", function() {
-        $("#upload-status-progressbar").hide();
-        app.trigger('drop');
-        expect($("#upload-status-progressbar")).toBeVisible();
+      // it("should reset progress bar", function() {
+      //   $("#upload-status-progressbar").hide();
+      //   app.trigger('drop');
+      //   expect($("#upload-status-progressbar")).toBeVisible();
+      // });
+    });
+
+    describe("uploadstart", function() {
+      it('should create placeholders for each file', function() {
+        app.uploadstart(files);
+        expect($("#upload-results")).toContain(".placeholder");
+        expect($("#upload-results .placeholder")).toHaveLength(2);
+        expect($("#upload-results .placeholder").text()).toMatch("image1.jpg uploading");
+        expect($("#upload-results .placeholder").text()).toMatch("image2.jpg uploading");
       });
     });
 
@@ -257,20 +272,76 @@ describe("WP", function() {
     });
 
     describe("dataTransferFiles", function() {
-      it("should traslate jquery event in to file list", function() {
-
+      var event;
+      it("should traslate event in to file list", function() {
+        event = { dataTransfer: { files: ['file1', 'file2'] } };
+        expect(WP.Utils.dataTransferFiles(event)).toEqual(['file1', 'file2']);
+      });
+      it("should return null if no dataTransfer property", function() {
+        expect(WP.Utils.dataTransferFiles({})).toBeNull();
       });
     });
 
-    describe("formData", function() {
-
+    describe("domId", function() {
+      it("should return <className>_<cid>", function(){
+        medium = Factory.create("medium");
+        expect(WP.Utils.domId(medium)).toEqual('medium_' + medium.cid);
+      });
     });
   });
 
   describe("WP.Medium", function() {
-    it("should initialize with given attributes", function() {
+    beforeEach(function() {
       medium = Factory.create("medium");
+    });
+
+    it("should initialize with given attributes", function() {
       expect(medium.get('k_entry_id')).toEqual('0_rj5efqxi');
+    });
+
+    describe("sync", function() {
+      beforeEach(function() {
+        spyOn(WP.Upload, "create");
+        spyOn(Backbone, "sync");
+      });
+
+      it("should call original backbone sync if fetching", function() {
+        medium.fetch();
+        expect(Backbone.sync).toHaveBeenCalledWith("read", medium, jasmine.any(Object));
+        expect(WP.Upload.create).not.toHaveBeenCalled();
+      });
+
+      it("should call upload if creating", function() {
+        medium.set({id : null, file: "file object" });
+        medium.save();
+        expect(WP.Upload.create).toHaveBeenCalledWith("file object", jasmine.any(Object));
+        expect(Backbone.sync).not.toHaveBeenCalled();
+      });
+    });
+
+    describe("src", function() {
+      it("should return link to kaltura with k_entry_id", function() {
+        medium.set({ k_entry_id: "0_rj5efqxi" });
+        expect(medium.src()).toEqual("http://cdn2.kaltura.com/p/56612/thumbnail/entry_id/0_rj5efqxi/width/190/type/3/quality/75");
+      });
+    });
+
+    describe("albumURL", function() {
+      it("should return link to album from album id", function() {
+        medium.set({ album_id: 892 });
+        expect(medium.albumURL()).toEqual("http://www.weplay.com/albums/892");
+      });
+    });
+    describe("detailURL", function() {
+      it("should construct detail url from attachable, album, and id", function() {
+        medium.set({
+          album_attachable_id: 76,
+          album_attachable_type: "Group",
+          id: 654321,
+          album_id: 892
+        });
+        expect(medium.detailURL()).toEqual("http://www.weplay.com/groups/76/pics-photos/892/654321");
+      });
     });
   });
 

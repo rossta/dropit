@@ -91,7 +91,7 @@ describe DropIt::Server do
       uploader.should_receive(:process)
       DropIt::Uploader.stub!(:new).and_return(uploader)
 
-      post '/upload', { :files => [{:tempfile =>'file'}] }
+      post '/upload', { :file => {:tempfile =>'file'} }
       last_response.should be_ok
       last_response.body.should include('Success')
     end
@@ -102,6 +102,29 @@ describe DropIt::Server do
       DropIt::Uploader.stub!(:new).and_return(uploader)
 
       post '/upload', { }
+      last_response.should be_ok
+      last_response.body.include?('No files sent')
+    end
+
+  end
+
+  describe "/bulk-upload" do
+    it "should process uploaded file" do
+      uploader = mock(DropIt::Uploader)
+      uploader.should_receive(:process)
+      DropIt::Uploader.stub!(:new).and_return(uploader)
+
+      post '/bulk-upload', { :files => [{:tempfile =>'file'}] }
+      last_response.should be_ok
+      last_response.body.should include('Success')
+    end
+
+    it "should not process if no files uploaded" do
+      uploader = mock(DropIt::Uploader)
+      uploader.should_not_receive(:process)
+      DropIt::Uploader.stub!(:new).and_return(uploader)
+
+      post '/bulk-upload', { }
       last_response.should be_ok
       last_response.body.include?('No files sent')
     end

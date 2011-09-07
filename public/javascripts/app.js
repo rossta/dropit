@@ -3,11 +3,11 @@
   var root = this;
   var WP;
 
-  var _ = root._;
-  var FormData    = root.FormData;
-  var FileReader  = root.FileReader;
-  var FileError   = root.FileError;
-  var Backbone    = root.Backbone;
+  var _           = root._,
+      FormData    = root.FormData,
+      FileReader  = root.FileReader,
+      FileError   = root.FileError,
+      Backbone    = root.Backbone;
 
   // Set up Mustache-style templating
   _.templateSettings = {
@@ -25,12 +25,8 @@
   WP.Utils = {
 
     dataTransferFiles: function(event) {
-      return event.dataTransfer.files;
-    },
-
-    base64StartIndex: function(data) {
-      var length = data.length, index;
-      return (length > 128) && (index = data.indexOf(',') + 1) && (length > index) && index;
+      var data;
+      return (data = event.dataTransfer) && data.files;
     },
 
     formData: function() {
@@ -42,7 +38,7 @@
     },
 
     domId: function(model) {
-      return ("" + model.className +"_"+ model.id).toLowerCase();
+      return ("" + model.className +"_"+ model.cid).toLowerCase();
     }
 
   };
@@ -85,7 +81,7 @@
         return self.preventDefault(event);
       }, false);
 
-      overlay.addEventListener('dragover', function() {
+      overlay.addEventListener('dragover', function(event) {
         return self.preventDefault(event);
       }, false);
 
@@ -115,27 +111,48 @@
 
     ondrop: function(files) {
       var self  = this;
-      var fileTotal = files.length;
-
       self.trigger('drop', files);
-
-      if(typeof files == "undefined" || fileTotal === 0) return;
-
-      self.trigger('uploadstart', files);
-
-      // Process each of the dropped files
-      _(files).each(function(file, i) {
-        self.uploadFile(file, fileTotal);
-      });
+      if(typeof files == "undefined" || files.length === 0) return;
+      self.uploadstart(files);
     },
 
-    uploadFile: function(file, total) {
-      var self = this, upload = WP.Upload.create(file, total, {
-        uploadend: self.uploadend
-      });
+    uploadstart: function(files) {
+      var self = this;
+      // Process each of the dropped files
+      _(files).each(function(file, i) { self.uploadFile(file); });
+      self.trigger('uploadstart', files);
+    },
+
+    uploadFile: function(file) {
+      var self  = this, medium;
+
+      medium = WP.Media.create({
+          name: file.name,
+          type: file.type,
+          size: file.size,
+          file: file
+        }, {
+          error: function(model, response) {
+            console.log("Upload error");
+            console.log.apply(console, arguments);
+          },
+
+          success: function(model, response) {
+            // [{"id":5469, "type":"KImage", "height":474, "k_entry_id":"0_rj5efqxi", "width":355 }, ... ]
+            console.log("Successful upload!");
+            console.log.apply(console, arguments);
+
+            self.trigger('uploadend', model, response);
+          }
+        });
+
+      WP.Media.trigger('upload', medium);
+      // TODO replace with callback on WP.Media.create
+      // WP.Upload.create(file, { uploadend: self.uploadend, bulk: true });
     },
 
     uploadend: function(media) {
+      console.log("DEPRECATED: uploadend");
       WP.Media.add(media);
       this.trigger('uploadend', media);
     }
@@ -144,30 +161,20 @@
 
   WP.Upload = {
     send: function() { WP.Upload.create.apply(WP.Upload, arguments); },
-    create: function(file, total, opts) {
+    create: function(file, opts) {
       var klass = _.isUndefined(root.FileReader) ? WP.BasicUpload : WP.FileReaderUpload;
-      return new klass(file, total, opts);
+      return new klass(file, opts);
     }
   };
 
-  WP.FileReaderUpload = function(file, total, opts) {
+  WP.FileReaderUpload = function(fileData, opts) {
     var self = this;
     self.opts = opts || (opts = {});
-    self.file = file;
-    self.total = total;
+    self.fileData = fileData;
     self.reader = WP.Utils.fileReader();
     self.uploadend = opts.uploadend;
     self.initialize();
   };
-
-  WP.BasicUpload = function(file, total) {
-    var self = this;
-    self.file = file;
-    self.total = total;
-    // self.initialize();
-  };
-
-  _.extend(WP.BasicUpload.prototype, Backbone.Events);
 
   _.extend(WP.FileReaderUpload.prototype, Backbone.Events, {
     initialize: function() {
@@ -175,60 +182,54 @@
       _.bindAll(self);
       self.reader.onerror = self.onerror;
       self.reader.onloadend = self.onloadend;
-      self.reader.readAsDataURL(self.file);
+
+      self.reader.readAsDataURL(self.fileData); // triggers onloadend when complete
     },
+
+    url: '/upload',
 
     send: function() {
       var self = this;
+      var url  = self.url;
       var data = WP.Utils.formData();
-      var provider = function() {
-        var xhr = jQuery.ajaxSettings.xhr();
-        if (xhr.upload) {
-          xhr.upload.addEventListener('progress', function (event) {
-            console.log("progress", event);
-            if (event.lengthComputable) {
-              var percentage = Math.round((event.loaded * 100) / event.total);
-              console.log('Loaded : '+percentage+'%');
-            }
+      var options;
 
-          }, false);
-        }
-        return xhr;
-      };
-
-      data.append("files[]", self.file);
+      // TODO support bulk upload
+      // data.append("files[]", self.fileData);
+      // url = '/bulk-upload';
+      data.append("file", self.fileData);
 
       // The contentType option must be set to false, forcing jQuery not to add a Content-Type header,
       // otherwise, the boundary string will be missing from it.
       // The processData flag is also set to false,
       // otherwise, jQuery will try to convert your FormData into a string, which will fail.
-      $.ajax({
-        url: '/upload',
+      options = _.extend({
+        url: url,
         type: 'POST',
         data: data,
-        xhr: provider,
+        xhr: self.provider,
         cache: false,
         contentType: false,
         processData: false,
+        timeout: 60000 // 1 min timeout
+      }, self.opts);
 
-        timeout: 60000, // 1 min timeout
+      $.ajax(options);
+    },
 
-        error: function(XMLHttpRequest, textStatus, errorThrown) {
-          console.log("Upload error");
-          console.log.apply(console, arguments);
-        },
+    provider: function() {
+      var xhr = $.ajaxSettings.xhr();
+      if (xhr.upload) {
+        xhr.upload.addEventListener('progress', function (event) {
+          console.log("progress", event);
+          if (event.lengthComputable) {
+            var percentage = Math.round((event.loaded * 100) / event.total);
+            console.log('Loaded : '+percentage+'%');
+          }
 
-        success: function(response) {
-          // [{"id":5469, "type":"KImage", "height":474, "k_entry_id":"0_rj5efqxi", "width":355 }, ... ]
-          // handle bad response
-
-          console.log("Successful upload!");
-          console.log.apply(console, arguments);
-
-          if (self.uploadend) self.uploadend(response.images);
-        }
-      });
-
+        }, false);
+      }
+      return xhr;
     },
 
     onerror: function(event) {
@@ -240,7 +241,7 @@
     },
 
     errorMessage: function(errorCode) {
-      var file = this.file, klass = WP.FileReaderUpload, message;
+      var file = this.fileData, klass = WP.FileReaderUpload, message;
 
       // REF: http://www.w3.org/TR/FileAPI/#ErrorDescriptions
       switch(errorCode) {
@@ -278,22 +279,36 @@
     ENCODING_ERR      : (FileError.ENCODING_ERR     || 5)
   });
 
+  WP.BasicUpload = function(file) {
+    var self = this;
+    self.file = file;
+    self.initialize();
+  };
 
-  /*
-    Models
-  */
+  _.extend(WP.BasicUpload.prototype, Backbone.Events, {
+    initialize: function() {}
+  });
+
+
+  // Models
+  // ------
 
   WP.Medium = Backbone.Model.extend({
-    initialize: function(attributes) {
-      attributes || (attributes = {});
-      var self = this;
 
-      self.resource = self.get("album_attachable_type").toLowerCase() + "s";
+    sync: function(method, model, options) {
+      var self = this, file;
+      if (self.isNew() && method == 'create' && (file = this.get("file"))) {
+        WP.Upload.create(file, options);
+        self.set({"file": null});
+      } else {
+        Backbone.sync.call(self, method, self, options);
+      }
     },
 
     src: function() {
       // return ["http://cdn2.kaltura.com/p/56612/thumbnail/entry_id", this.get('k_entry_id'),"width/210/height/133/type/3/quality/75"].join('/');
-      return ["http://cdn2.kaltura.com/p/56612/thumbnail/entry_id", this.get('k_entry_id'),"width/190/type/3/quality/75"].join('/');
+      return ["http://cdn2.kaltura.com/p/56612/thumbnail/entry_id",
+              this.get('k_entry_id'),"width/190/type/3/quality/75"].join('/');
     },
 
     albumURL: function() {
@@ -302,10 +317,21 @@
 
     detailURL: function() {
       var self = this;
-      return [
-        WP.Settings.host,
-        self.resource, self.get("album_attachable_id"),
-        'pics-photos', this.get("album_id"), self.id].join("/");
+      return [WP.Settings.host,
+              self.resource(), self.get("album_attachable_id"),
+              'pics-photos', this.get("album_id"), self.id].join("/");
+    },
+
+    resource: function() {
+      return this.get("album_attachable_type").toLowerCase() + "s";
+    },
+
+    url: function() {
+      if (this.isNew()) {
+        return "/upload";
+      } else {
+        return this.detailURL();
+      }
     },
 
     className: "Medium"
@@ -319,9 +345,8 @@
   // Development data
   // WP.Media.add([{"restricted":true,"created_at":"2011-09-06T14:03:23-04:00","album_id":891,"uploader_id":15,"id":5540,"type":"KImage","k_status":"2","caption":null,"height":540,"k_entry_id":"1_j64vxbq6","comments_count":0,"width":470},{"restricted":true, "created_at":"2011-09-06T14:14:20-04:00", "album_id":891, "uploader_id":15, "id":5541, "type":"KImage", "k_status":"2", "caption":null, "height":666, "k_entry_id":"0_ifjpbaok", "comments_count":0, "width":930}])
 
-  /*
-    Views
-  */
+  // Views
+  // -----
 
   WP.UploadStatus = Backbone.View.extend({
     initialize: function(opts) {
@@ -337,11 +362,26 @@
       app.bind("uploadend", self.uploadend);
 
       WP.Media.bind("add", function(medium) {
-        self.$("#upload-thumbnail-list").append(new WP.Thumbnail({ model: medium, id: WP.Utils.domId(medium) }).el);
+        var domId = WP.Utils.domId(medium);
+        var thumbnail = new WP.Thumbnail({ model: medium, id: domId });
+        var $placeholder = self.$("#" + domId);
+        if ($placeholder.length) {
+          $placeholder.replaceWith(thumbnail.el);
+        } else {
+          self.$("#upload-thumbnail-list").append(thumbnail.el);
+        }
         self.$("#upload-results").show();
         self.$("#upload-status-text").html(medium.get('filename') + " uploaded!");
       });
 
+      WP.Media.bind("upload", function(medium) {
+        var placeholder = new WP.Placeholder({ model: medium, id: WP.Utils.domId(medium) });
+        self.$("#upload-thumbnail-list").append(placeholder.el);
+      });
+
+      // WP.Files.bind("add", function(file) {
+      // });
+      //
       self.render();
     },
 
@@ -362,14 +402,14 @@
       // Reset progress bar incase we are dropping MORE files on an existing result page
       // $("#upload-status-progressbar").progressbar({value:0});
       // Show progressbar
-      self.$("#upload-status-progressbar").fadeIn(0);
+      // self.$("#upload-status-progressbar").fadeIn(0);
     },
 
     uploadstart: function(files) {
       var self = this, fileTotal = files.length, label = (fileTotal == 1 ? " file" : " files");
       self.$("#upload-status-text").html("Uploading...");
       self.$("#upload-count").html(fileTotal + label);
-      self.$("#upload-results").fadeIn(125);
+      self.$("#upload-header").fadeIn(125);
       self.$("#upload-animation").show();
     },
 
@@ -377,25 +417,35 @@
       var self = this;
       self.$("#upload-animation").hide();
     }
+
   });
 
   WP.Thumbnail = Backbone.View.extend({
     initialize: function(opts) {
       opts || (opts = {});
       var self = this;
+      _.bindAll(self);
       self.medium = self.model;
 
-      self.template = _.template($("#thumbnail-template").html());
+      self.template = _.template($(self.templateId).html());
       self.render();
     },
 
     className: "thumbnail",
+
+    templateId: "#thumbnail-template",
 
     render: function() {
       $(this.el).html(this.template({ medium: this.medium }));
     }
 
   });
+
+  WP.Placeholder = WP.Thumbnail.extend({
+    className: "placeholder thumbnail",
+    templateId: "#placeholder-template"
+  });
+
 
   WP.Overlay = Backbone.View.extend({
 
