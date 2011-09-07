@@ -7,7 +7,8 @@ describe("WP", function() {
   beforeEach(function() {
 
     Factory.define('medium', WP.Medium, {
-      "type":"KImage", "height":474, "k_entry_id":"0_rj5efqxi", "width":355
+      "type":"KImage", "height":474, "k_entry_id":"0_rj5efqxi", "width":355,
+      "album_attachable_type": "User", "album_attachable_id": 15, "album_title": "Uploads"
     });
 
     spyOn(WP.Utils, 'formData').andReturn(data);

@@ -34,10 +34,13 @@
 </script>
 <script id="thumbnail-template" type="text/html" charset="utf-8">
   <div class="thumbnail-table table">
-    <div class="thumbnail-frame cell"><img width="150" src="{{medium.src()}}" alt="{{medium.filename}}"/></div>
+    <div class="thumbnail-frame cell">
+      <a href="{{medium.detailURL()}}"><img width="150" src="{{medium.src()}}" alt="{{medium.filename}}"/></a>
+    </div>
     <div class="text-cell no-text-shadow padding-left">
+      <p>{{medium.get('filename')}}</p>
       <p>Photo: <a href="{{medium.detailURL()}}">{{medium.detailURL()}}</a></p>
-      <p>Album: <a href="{{medium.albumURL()}}">{{medium.albumURL()}}</a></p>
+      <p>Album: <a href="{{medium.albumURL()}}">{{medium.get('album_title')}}</a></p>
     </div>
   </div>
 </script>

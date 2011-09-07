@@ -49,7 +49,8 @@ describe DropIt::UploadRequest do
 
   describe "CreateMediumRequest" do
     before(:each) do
-      @response = mock('Response', :body => "\{\"medium\":\{\"id\":5469,\"type\":\"KImage\",\"height\":474,\"k_entry_id\":\"0_rj5efqxi\",\"width\":355\}\}")
+      # @response = mock('Response', :body => "\{\"medium\":\{\"id\":5469,\"type\":\"KImage\",\"height\":474,\"k_entry_id\":\"0_rj5efqxi\",\"width\":355\}\}")
+      @response = mock('Response', :body => "\{\"id\":5469,\"type\":\"KImage\",\"height\":474,\"k_entry_id\":\"0_rj5efqxi\",\"width\":355\}")
       @access_token = mock(OAuth::AccessToken, :post => @response)
     end
 

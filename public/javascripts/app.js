@@ -18,7 +18,8 @@
 
   WP.Settings = {
     xhr: true,
-    dragdrop: true
+    dragdrop: true,
+    host: "http://www.weplay.com"
   };
 
   WP.Utils = {
@@ -48,7 +49,9 @@
 
   WP.App = function(settings) {
     var self = this;
-    self.settings = _.extend({}, WP.Settings, settings);
+
+    _.extend(WP.Settings, settings);
+
     self.initialize.apply(this, arguments);
   };
 
@@ -57,7 +60,6 @@
     initialize: function() {
       var self = this, $el = $("#main");
       _.bindAll(self);
-
       $el.prepend(new WP.UploadStatus({ app: self }).el);
       self.listen(new WP.Overlay({ app: self }).el);
     },
@@ -149,8 +151,8 @@
   };
 
   WP.FileReaderUpload = function(file, total, opts) {
-    opts = opts || {};
     var self = this;
+    self.opts = opts || (opts = {});
     self.file = file;
     self.total = total;
     self.reader = WP.Utils.fileReader();
@@ -184,6 +186,11 @@
         if (xhr.upload) {
           xhr.upload.addEventListener('progress', function (event) {
             console.log("progress", event);
+            if (event.lengthComputable) {
+              var percentage = Math.round((event.loaded * 100) / event.total);
+              console.log('Loaded : '+percentage+'%');
+            }
+
           }, false);
         }
         return xhr;
@@ -217,8 +224,6 @@
 
           console.log("Successful upload!");
           console.log.apply(console, arguments);
-          // Flatten root 'medium' from json response
-          // var media = _(response.images).map(function(result) { return result.medium; });
 
           if (self.uploadend) self.uploadend(response.images);
         }
@@ -279,6 +284,12 @@
   */
 
   WP.Medium = Backbone.Model.extend({
+    initialize: function(attributes) {
+      attributes || (attributes = {});
+      var self = this;
+
+      self.resource = self.get("album_attachable_type").toLowerCase() + "s";
+    },
 
     src: function() {
       // return ["http://cdn2.kaltura.com/p/56612/thumbnail/entry_id", this.get('k_entry_id'),"width/210/height/133/type/3/quality/75"].join('/');
@@ -286,11 +297,15 @@
     },
 
     albumURL: function() {
-      return ["http://www.weplay.com/users/ross/pics-photos", this.get("album_id")].join('/');
+      return [WP.Settings.host, "albums", this.get("album_id")].join('/');
     },
 
     detailURL: function() {
-      return [this.albumURL(), this.id].join("/");
+      var self = this;
+      return [
+        WP.Settings.host,
+        self.resource, self.get("album_attachable_id"),
+        'pics-photos', this.get("album_id"), self.id].join("/");
     },
 
     className: "Medium"

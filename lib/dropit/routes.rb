@@ -7,7 +7,7 @@ module DropIt
     end
 
     def media_create_from_upload_path
-      "/api/v1/media/create_from_upload.json"
+      "/api/v2/media/create_from_upload.json"
     end
 
   end
