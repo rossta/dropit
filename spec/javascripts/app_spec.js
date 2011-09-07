@@ -380,14 +380,39 @@ describe("WP", function() {
     });
 
     describe("albumDisplayName", function() {
-      it("should return album_title if defined", function() {
+      it("should return '<context> - <album_title>' if defined", function() {
         medium.set({ album_title: "Weplay Uploads" });
-        expect(medium.albumDisplayName()).toEqual("Weplay Uploads");
+        expect(medium.albumDisplayName()).toEqual("Personal Gallery - Weplay Uploads");
+      });
+
+      it("should return '<group name> - <album_title> if defined and attachable is a group", function() {
+        medium.set({ album_title: "Weplay Uploads", album_attachable_type: "Group", album_attachable_id: 2 });
+        expect(medium.albumDisplayName()).toEqual("Lions - Weplay Uploads");
       });
 
       it("should return albumURL otherwise", function() {
         medium.set({ album_title: null });
-        expect(medium.albumDisplayName()).toEqual(medium.albumURL());
+        expect(medium.albumDisplayName()).toEqual("Personal Gallery - " + medium.albumURL());
+      });
+    });
+
+    describe("group", function() {
+      it("should return null if album_attachable_type is user", function() {
+        expect(medium.group()).toBeFalsy();
+      });
+      it("should return group if album_attachable_type is group and it exists", function() {
+        medium.set({
+          album_attachable_type: "Group",
+          album_attachable_id: 1
+        })
+        expect(medium.group()).toEqual(WP.Groups.get(1));
+      });
+      it("should return null if group does not exist", function() {
+        medium.set({
+          album_attachable_type: "Group",
+          album_attachable_id: 3
+        })
+        expect(medium.group()).toBeFalsy();
       });
     });
 

@@ -329,27 +329,42 @@
 
     detailURL: function() {
       var self = this;
-      if (self.attachableType()) {
+      if (self.attachableAsResource()) {
         return [WP.Settings.host,
-                self.attachableType(), self.get("album_attachable_id"),
+                self.attachableAsResource(), self.get("album_attachable_id"),
                 'pics-photos', this.get("album_id"), self.id].join("/");
       } else {
         return self.albumURL();
       }
     },
 
-    attachableType: function() {
+    attachableAsResource: function() {
       var attachable_type;
       return (attachable_type = this.get("album_attachable_type")) && attachable_type.toLowerCase() + "s";
     },
 
     albumDisplayName: function() {
       var title = this.get("album_title");
-      return (title ? title : this.albumURL());
+      return this.attachableName() +" - "+ (title ? title : this.albumURL());
+    },
+
+    attachableName: function() {
+      var context, group;
+      if (group = this.group()) {
+        context = group.escape("name");
+      } else {
+        context = "Personal Gallery";
+      }
+      return context;
     },
 
     url: function() {
       return (this.isNew() ? "/upload" : this.detailURL());
+    },
+
+    group: function() {
+      var group;
+      return this.get("album_attachable_type") == "Group" && (group = WP.Groups.get(this.get("album_attachable_id")));
     },
 
     className: "Medium"
