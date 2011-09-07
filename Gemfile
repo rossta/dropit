@@ -10,6 +10,7 @@ gem "rack-flash"
 
 gem "redis"
 
+gem "active_support"
 
 group :development, :test do
   gem "rake"
@@ -20,5 +21,4 @@ group :development, :test do
   gem "jasmine"
   gem "static_fm"
   # gem "static_fm", :path => '/Users/ross/projects/static_fm'
-  # gem 'jasmine-headless-webkit'
 end

@@ -8,6 +8,7 @@
       FileReader  = root.FileReader,
       FileError   = root.FileError,
       Backbone    = root.Backbone;
+      Queue       = root.Queue;
 
   // Set up Mustache-style templating
   _.templateSettings = {
@@ -56,10 +57,16 @@
     initialize: function() {
       var self = this, $el = $("#main");
       _.bindAll(self);
+      WP.Upload.reset();
+
       $el.prepend(new WP.UploadStatus({ app: self }).el);
       self.overlayView = new WP.Overlay({ app: self });
       self.listen(self.overlayView);
+
       WP.Groups.fetch();
+      WP.Media.bind("uploadend", function() {
+        WP.Upload.finish();
+      });
     },
 
     listen: function(overlayView) {
@@ -131,43 +138,35 @@
     },
 
     uploadFile: function(file) {
-      var self  = this, medium;
-
-      medium = WP.Media.create({
-          name: file.name,
+      var self  = this;
+      var medium = WP.Media.create({
+          filename: file.name,
           type: file.type,
           size: file.size,
-          file: file
+          file: file,
+          status: 'waiting'
         }, {
           error: function(model, response) {
             console.log("Upload error");
             console.log.apply(console, arguments);
+            WP.Media.trigger('uploadend', model, response);
           },
 
           success: function(model, response) {
-            // [{"id":5469, "type":"KImage", "height":474, "k_entry_id":"0_rj5efqxi", "width":355 }, ... ]
+            // response {"id":5469, "type":"KImage", "height":474, "k_entry_id":"0_rj5efqxi", "width":355, ... }
             console.log("Successful upload!");
             console.log.apply(console, arguments);
-
-            self.trigger('uploadend', model, response);
+            WP.Media.trigger('uploadend', model, response);
           }
         });
 
-      WP.Media.trigger('upload', medium);
-      // TODO replace with callback on WP.Media.create
-      // WP.Upload.create(file, { uploadend: self.uploadend, bulk: true });
-    },
-
-    uploadend: function(media) {
-      console.log("DEPRECATED: uploadend");
-      WP.Media.add(media);
-      this.trigger('uploadend', media);
+      WP.Media.trigger('uploadstart', medium);
     }
 
   });
 
 
-  // Upload Strategies
+  // Upload Management
   // -----------------
 
   WP.Upload = {
@@ -175,6 +174,38 @@
     create: function(file, opts) {
       var klass = _.isUndefined(root.FileReader) ? WP.BasicUpload : WP.FileReaderUpload;
       return new klass(file, opts);
+    },
+
+    UPLOAD_MAX: 4,
+    currentlyUploading: 0,
+    queue: new Queue,
+
+    reset: function() {
+      _.bindAll(this);
+      this.queue = new Queue;
+      this.currentlyUploading = 0;
+    },
+
+    enqueue: function(item) {
+      this.queue.enqueue(item);
+      this.next();
+    },
+
+    next: function() {
+      var queue = this.queue;
+      if (queue.isEmpty()) return;
+      if (this.currentlyUploading < this.UPLOAD_MAX) {
+        this.currentlyUploading += 1;
+        (queue.dequeue())();
+      }
+    },
+
+    finish: function(count) {
+      count || (count = 1);
+      this.currentlyUploading -= count;
+      for(var i = 0; i <= count; i++) {
+        this.next();
+      }
     }
   };
 
@@ -183,7 +214,6 @@
     self.opts = opts || (opts = {});
     self.fileData = fileData;
     self.reader = WP.Utils.fileReader();
-    self.uploadend = opts.uploadend;
     self.initialize();
   };
 
@@ -310,8 +340,11 @@
     sync: function(method, model, options) {
       var self = this, file;
       if (self.isNew() && method == 'create' && (file = this.get("file"))) {
-        WP.Upload.create(file, options);
-        self.set({"file": null});
+        WP.Upload.enqueue(function() {
+          self.set({"status": "uploading"});
+          WP.Upload.create(file, options);
+          self.set({"file": null});
+        });
       } else {
         Backbone.sync.call(self, method, self, options);
       }
@@ -367,6 +400,10 @@
       return this.get("album_attachable_type") == "Group" && (group = WP.Groups.get(this.get("album_attachable_id")));
     },
 
+    uploadStatus: function() {
+      return this.escape("filename") +" "+(this.get("status")||'ready')+" ...";
+    },
+
     className: "Medium"
   });
 
@@ -398,7 +435,8 @@
       self.template = _.template($("#status-template").html());
       app.bind("drop", self.drop);
       app.bind("uploadstart", self.uploadstart);
-      app.bind("uploadend", self.uploadend);
+
+      WP.Media.bind("uploadend", self.uploadend);
 
       WP.Media.bind("add", function(medium) {
         var domId = WP.Utils.domId(medium);
@@ -413,7 +451,7 @@
         self.$("#upload-status-text").html(medium.get('filename') + " uploaded!");
       });
 
-      WP.Media.bind("upload", function(medium) {
+      WP.Media.bind("uploadstart", function(medium) {
         var placeholder = new WP.Placeholder({ model: medium, id: WP.Utils.domId(medium) });
         self.$("#upload-thumbnail-list").append(placeholder.el);
       });
@@ -456,7 +494,7 @@
 
     uploadend: function() {
       var self = this;
-      self.$("#upload-animation").hide();
+      if (WP.Upload.queue.isEmpty()) self.$("#upload-animation").hide();
     }
 
   });
@@ -467,6 +505,7 @@
       var self = this;
       _.bindAll(self);
       self.medium = self.model;
+      self.medium.bind("change", self.render);
 
       self.template = _.template($(self.templateId).html());
       self.render();

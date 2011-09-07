@@ -13,6 +13,7 @@ describe("WP", function() {
     Factory.define('group', WP.Group, { "id": 76, "name": "Tigers" });
 
     WP.Media.reset();
+    WP.Upload.reset();
 
     spyOn(WP.Groups, "fetch").andCallFake(function() {
       WP.Groups.reset([
@@ -96,12 +97,49 @@ describe("WP", function() {
           error: jasmine.any(Function)
         });
       });
+
     });
   });
 
   describe("Upload", function() {
     it("should be defined", function() {
       expect(WP.Upload).toEqual(jasmine.any(Object));
+    });
+
+    describe("queue", function() {
+      it('should be a Queue instance', function() {
+        expect(WP.Upload.queue).toEqual(jasmine.any(Queue));
+      });
+    });
+
+    describe("enqueue", function() {
+      it("should immediately dequeue if queue size less than max upload", function() {
+        WP.Upload.enqueue(jasmine.createSpy());
+        expect(WP.Upload.queue.getLength()).toEqual(0);
+      });
+      it("should keep extra in queue", function() {
+        var lastJob = jasmine.createSpy();
+        WP.Upload.enqueue(jasmine.createSpy());
+        WP.Upload.enqueue(jasmine.createSpy());
+        WP.Upload.enqueue(jasmine.createSpy());
+        WP.Upload.enqueue(jasmine.createSpy());
+        WP.Upload.enqueue(jasmine.createSpy());
+        expect(WP.Upload.queue.getLength()).toEqual(1);
+        expect(lastJob).not.toHaveBeenCalled();
+      });
+      it("should load next upload when one marked finish", function() {
+        var lastJob = jasmine.createSpy();
+        WP.Upload.enqueue(jasmine.createSpy());
+        WP.Upload.enqueue(jasmine.createSpy());
+        WP.Upload.enqueue(jasmine.createSpy());
+        WP.Upload.enqueue(jasmine.createSpy());
+        WP.Upload.enqueue(lastJob);
+
+        WP.Upload.finish(1);
+
+        expect(WP.Upload.queue.getLength()).toEqual(0);
+        expect(lastJob).toHaveBeenCalled();
+      });
     });
 
     describe("Upload.create", function() {
@@ -404,14 +442,14 @@ describe("WP", function() {
         medium.set({
           album_attachable_type: "Group",
           album_attachable_id: 1
-        })
+        });
         expect(medium.group()).toEqual(WP.Groups.get(1));
       });
       it("should return null if group does not exist", function() {
         medium.set({
           album_attachable_type: "Group",
           album_attachable_id: 3
-        })
+        });
         expect(medium.group()).toBeFalsy();
       });
     });

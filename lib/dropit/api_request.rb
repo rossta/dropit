@@ -1,3 +1,5 @@
+require 'active_support/core_ext/object/blank'
+
 module DropIt
   class ApiRequest
     include Routes
@@ -71,11 +73,11 @@ module DropIt
         [:filename, :size, :type].each { |key| params[key.to_s] = file_params[key] }
       end
     end
-    
+
     def post_params
       {}.tap do |params|
         params[:upload_token_id] = upload_token_id
-        params[:group_id] = file_params[:group_id] if file_params[:group_id]
+        params[:group_id] = file_params[:group_id] unless file_params[:group_id].blank?
       end
     end
   end

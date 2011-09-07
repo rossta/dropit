@@ -1,6 +1,9 @@
 GEM
   remote: http://rubygems.org/
   specs:
+    active_support (3.0.0)
+      activesupport (= 3.0.0)
+    activesupport (3.0.0)
     archive-tar-minitar (0.5.2)
     childprocess (0.2.2)
       ffi (~> 1.0.6)
@@ -79,6 +82,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  active_support
   jasmine
   json
   oauth
