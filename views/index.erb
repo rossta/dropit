@@ -34,9 +34,7 @@
 </script>
 <script id="placeholder-template" type="text/html" charset="utf-8">
   <div class="placeholder-table table">
-    <div class="text-cell" style='width:190px;'>
-      <p>{{medium.get('name')}} uploading...</p>
-    </div>
+    <div class="text-cell">{{medium.get('name')}} uploading...</div>
     <div class="cell progress"></div>
   </div>
 </script>
@@ -48,7 +46,7 @@
     <div class="text-cell no-text-shadow padding-left">
       <p>{{medium.get('filename')}}</p>
       <p>Photo: <a href="{{medium.detailURL()}}">{{medium.detailURL()}}</a></p>
-      <p>Album: <a href="{{medium.albumURL()}}">{{medium.get('album_title')}}</a></p>
+      <p>Album: <a href="{{medium.albumURL()}}">{{medium.albumDisplayName()}}</a></p>
     </div>
   </div>
 </script>

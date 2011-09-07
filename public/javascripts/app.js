@@ -57,26 +57,31 @@
       var self = this, $el = $("#main");
       _.bindAll(self);
       $el.prepend(new WP.UploadStatus({ app: self }).el);
-      self.listen(new WP.Overlay({ app: self }).el);
+
+      self.overlayView = new WP.Overlay({ app: self });
+      self.listen(self.overlayView);
     },
 
-    listen: function(overlay) {
+    listen: function(overlayView) {
       // initialize drag and drop
       var self  = this,
-          $body = $('body');
-          body  = $body[0];
+          $body = $('body'),
+          body  = $body[0],
+          overlay = overlayView.el;
 
       body.addEventListener('dragenter', function(event) {
+        if (overlayView.isHidden()) overlayView.fadeIn();
         self.dragenter(event);
         return self.preventDefault(event);
       }, false);
 
-      overlay.addEventListener('dragenter', function(event){
+      overlay.addEventListener('dragenter', function(event) {
         self.preventDefault(event);
         return false;
       });
 
-      overlay.addEventListener('dragleave', function(event){
+      overlay.addEventListener('dragleave', function(event) {
+        overlayView.dragleave();
         self.dragleave(event);
         return self.preventDefault(event);
       }, false);
@@ -86,12 +91,14 @@
       }, false);
 
       overlay.addEventListener('drop', function(event) {
+        overlayView.hide();
         var files = WP.Utils.dataTransferFiles(event);
         self.ondrop(files);
         console.log('drop');
         return self.preventDefault(event);
       }, false);
 
+      overlayView.hide();
       $body.append(overlay);
     },
 
@@ -158,6 +165,10 @@
     }
 
   });
+
+
+  // Upload Strategies
+  // -----------------
 
   WP.Upload = {
     send: function() { WP.Upload.create.apply(WP.Upload, arguments); },
@@ -317,21 +328,27 @@
 
     detailURL: function() {
       var self = this;
-      return [WP.Settings.host,
-              self.resource(), self.get("album_attachable_id"),
-              'pics-photos', this.get("album_id"), self.id].join("/");
+      if (self.attachableType()) {
+        return [WP.Settings.host,
+                self.attachableType(), self.get("album_attachable_id"),
+                'pics-photos', this.get("album_id"), self.id].join("/");
+      } else {
+        return self.albumURL();
+      }
     },
 
-    resource: function() {
-      return this.get("album_attachable_type").toLowerCase() + "s";
+    attachableType: function() {
+      var attachable_type;
+      return (attachable_type = this.get("album_attachable_type")) && attachable_type.toLowerCase() + "s";
+    },
+
+    albumDisplayName: function() {
+      var title = this.get("album_title");
+      return (title ? title : this.albumURL());
     },
 
     url: function() {
-      if (this.isNew()) {
-        return "/upload";
-      } else {
-        return this.detailURL();
-      }
+      return (this.isNew() ? "/upload" : this.detailURL());
     },
 
     className: "Medium"
@@ -457,9 +474,6 @@
       _.bindAll(self);
 
       app.bind('teardown.wp', self.remove);
-      app.bind('dragenter', self.fadeIn);
-      app.bind('dragleave', self.dragleave);
-      app.bind('drop', self.hide);
 
       self.template = _.template($("#overlay-template").html());
       self.render();
@@ -473,17 +487,13 @@
       return self;
     },
 
-    fadeOut: function(num) {
-      return $(this.el).fadeOut(num);
-    },
+    fadeOut: function(num) { return $(this.el).fadeOut(num); },
 
-    fadeIn: function(num) {
-      return $(this.el).fadeIn(num);
-    },
+    fadeIn: function(num) { return $(this.el).fadeIn(num); },
 
-    hide: function() {
-      return $(this.el).hide();
-    },
+    hide: function() { return $(this.el).hide(); },
+
+    show: function() { return $(this.el).show(); },
 
     dragleave: function(event) {
       /*
@@ -496,6 +506,10 @@
           $(window).height - event.pageY < 10) {
           this.fadeOut(125);
       }
+    },
+
+    isHidden: function() {
+      return $(this.el).is(":hidden");
     }
 
   });

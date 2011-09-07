@@ -332,6 +332,7 @@ describe("WP", function() {
         expect(medium.albumURL()).toEqual("http://www.weplay.com/albums/892");
       });
     });
+
     describe("detailURL", function() {
       it("should construct detail url from attachable, album, and id", function() {
         medium.set({
@@ -341,6 +342,27 @@ describe("WP", function() {
           album_id: 892
         });
         expect(medium.detailURL()).toEqual("http://www.weplay.com/groups/76/pics-photos/892/654321");
+      });
+      it("should return albumURL if no attachable data", function(){
+        medium.set({
+          album_attachable_id: null,
+          album_attachable_type: null,
+          id: 654321,
+          album_id: 892
+        });
+        expect(medium.detailURL()).toEqual(medium.albumURL());
+      });
+    });
+
+    describe("albumDisplayName", function() {
+      it("should return album_title if defined", function() {
+        medium.set({ album_title: "Weplay Uploads" });
+        expect(medium.albumDisplayName()).toEqual("Weplay Uploads");
+      });
+
+      it("should return albumURL otherwise", function() {
+        medium.set({ album_title: null });
+        expect(medium.albumDisplayName()).toEqual(medium.albumURL());
       });
     });
   });
@@ -355,6 +377,26 @@ describe("WP", function() {
     it('should render url for img src', function() {
       view = new WP.Thumbnail({ model: medium });
       expect($(view.el).html()).toMatch(medium.get('k_entry_id'));
+    });
+  });
+
+  describe("WP.Overlay", function() {
+    beforeEach(function() {
+      app = new WP.App();
+    });
+    describe("hidden", function() {
+      it("should return false to start", function() {
+        expect(app.overlayView.isHidden()).toBeTruthy();
+      });
+      it("should return false after hiding", function() {
+        app.overlayView.show();
+        app.overlayView.hide();
+        expect(app.overlayView.isHidden()).toBeTruthy();
+      });
+      it("should return true after showing", function() {
+        app.overlayView.show();
+        expect(app.overlayView.isHidden()).toBeFalsy();
+      });
     });
   });
 
