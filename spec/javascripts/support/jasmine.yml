@@ -11,10 +11,10 @@
 #   - dist/**/*.js
 #
 src_files:
-    - public/javascripts/vendor/jquery*.js
-    - public/javascripts/vendor/modernizr*.js
-    - public/javascripts/vendor/underscore*.js
-    - public/javascripts/vendor/backbone*.js
+    - public/javascripts/vendor/modernizr.js
+    - public/javascripts/vendor/jquery.js
+    - public/javascripts/vendor/underscore.js
+    - public/javascripts/vendor/backbone.js
     - public/javascripts/plugins/*.js
     - public/javascripts/app.js
 
