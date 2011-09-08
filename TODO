@@ -4,12 +4,15 @@ OAuth
 On page load
 - Handle noscript
 - Handle no drag/drop
-- Choose target site and album
 
 Upload Prep
-- Batch images
 - Auto resize
 - Manual resize
+- Validate file types
+  Photos: jpg, jpeg, bmp, png, gif, tif, tiff
+  Videos: flv, asf, qt, mov, mpg, mpeg, avi, wmv, mp4, m4v, 3gp
+- FileReader events
+  onloadstart, onprogress, onload, onabort, onerror, and onloadend
 
 During Upload
 - Show progress
@@ -20,11 +23,9 @@ Upload Complete
 - Link to album on Weplay
 
 Server
-- Background API calls
-- Push result to browser
+- Background API calls and push result to browser
 
 Architecture
-- Backbone frontend
 - Eventmachine backend
 
 Return visit/Offline
@@ -35,4 +36,3 @@ Weplay Backend
 
 Weplay integration
 - open in new window
-  
