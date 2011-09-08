@@ -31,8 +31,9 @@
   <!-- All JavaScript at the bottom, except for Modernizr / Respond.
        Modernizr enables HTML5 elements & feature detects; Respond is a polyfill for min/max-width CSS3 Media Queries
        For optimal performance, use a custom Modernizr build: www.modernizr.com/download/ -->
-  <script src="javascripts/vendor/modernizr-2.0.6.min.js"></script>
-</head>
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/modernizr/2.0.6/modernizr.min.js"></script>
+  <script>window.Modernizr || document.write('<script src="javascripts/vendor/modernizr-2.0.6.min.js"><\/script>')</script>
+</head> 
 
 <body>
   <div id="toolbar">
@@ -55,22 +56,23 @@
 
   <footer></footer>
 
-  <!-- JavaScript at the bottom for fast page loading -->
-
-  <!-- Grab Google CDN's jQuery, with a protocol relative URL; fall back to local if offline -->
   <script src="//ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
   <script>window.jQuery || document.write('<script src="javascripts/vendor/jquery-1.6.2.min.js"><\/script>')</script>
-  <script src="javascripts/vendor/underscore-min.js"></script>
-  <script defer src="javascripts/plugins/plugins.js"></script>
-  <script src="javascripts/plugins/queue.js"></script>
-  <script src="javascripts/plugins/jquery.selectboxes.js"></script>
-  <script src="javascripts/vendor/backbone.js"></script>
-  <script src="javascripts/app.js"></script>
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.1.7/underscore-min.js"></script>
+  <script>window._ || document.write('<script src="javascripts/vendor/underscore-1.1.7.min.js"><\/script>')</script>
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/backbone.js/0.5.3/backbone-min.js" type="text/javascript"></script>
+  <script>window.Backbone || document.write('<script src="javascripts/vendor/backbone-0.5.3.min.js"><\/script>')</script>
 
+  <script defer src="javascripts/plugins/plugins.js"></script>
+  <script defer src="javascripts/plugins/queue.js"></script>
+  <script defer src="javascripts/plugins/jquery.selectboxes.js"></script>
+  <script defer src="javascripts/app.js"></script>
   <script defer type="text/javascript" charset="utf-8">
-    WP.application = new WP.App({
-      dragdrop: false,
-      host: "<%= settings.site %>"
+    $(function() {
+      WP.application = new WP.App({
+        dragdrop: false,
+        host: "<%= settings.site %>"
+      });
     });
   </script>
 
