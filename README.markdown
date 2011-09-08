@@ -4,7 +4,7 @@
 
 ## About
 
-DropIt was developed to leverage modern browser capabilities to serve as an alternative to the Flash-based third party uploader provided by Kaltura. The server is written in Ruby using the Sinatra web framework. The front-end logic is built on jQuery, Underscore, Backbone and uses native File API and Drag and Drop events to interface with the desktop and trigger the upload process.
+DropIt was developed to leverage modern browser capabilities to serve as an alternative to the Flash-based third party uploader provided by Kaltura. The front-end logic is built on jQuery, Underscore, Backbone and uses native File API and Drag and Drop events to interface with the desktop and trigger the upload process. The server is written in Ruby using the Sinatra web framework. It currently uses Redis to store access tokens needed for OAuth authentication with the Weplay API.
 
 ## Running Locally
 
