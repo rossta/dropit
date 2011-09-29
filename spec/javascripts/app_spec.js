@@ -460,6 +460,39 @@ describe("WP", function() {
         expect(WP.Media.length).toEqual(1);
       });
     });
+
+  	describe("validate", function() {
+  	  var validation;
+  	  beforeEach(function() {
+        medium = Factory.create("medium");
+  	  });
+      it("should allow valid file", function() {
+        validation = medium.validate({
+          filename: "image.jpg",
+          type: "image/jpeg",
+          size: 256
+        });
+        expect(validation).toBeNull();
+      });
+
+      it("should only allow valid file types", function() {
+        validation = medium.validate({
+          filename: "memo.text",
+          type: "text/plain",
+          size: 256
+        });
+        expect(validation).toMatch("currently not supported");
+      });
+
+      it("should limit upload size to 10MB", function() {
+        validation = medium.validate({
+          filename: "image.jpg",
+          type: "image/jpeg",
+          size: 10000001
+        });
+        expect(validation).toMatch("file size 10MB is too large");
+      });
+  	});
   });
 
   describe("WP.Thumbnail", function() {

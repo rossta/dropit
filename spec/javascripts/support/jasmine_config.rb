@@ -1,11 +1,9 @@
 module Jasmine
   class Config
-
     # Add your overrides or custom config code here
-
+    attr_reader :jasmine_server_port
   end
 end
-
 
 # Note - this is necessary for rspec2, which has removed the backtrace
 module Jasmine

@@ -1,5 +1,7 @@
 source :gemcutter
 
+gem "rake", "~> 0.8.7"
+
 gem "thin"
 gem "sinatra"
 
@@ -13,7 +15,6 @@ gem "redis"
 gem "active_support"
 
 group :development, :test do
-  gem "rake"
   gem "rack-test"
   gem "rspec"
   gem 'ruby-debug', :platforms => :ruby_18

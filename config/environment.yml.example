@@ -3,12 +3,14 @@ development:
   consumer_secret: "jKlOi0e8wNpx6f02ueQzDQXRDfJ4zbVAzWbj3L3C"
   site: "http://www.localhost.com"
   redis_url: "redis://127.0.0.1:6379/0"
+  api_version: 2
 
 test:
   consumer_key: "consumer_key"
   consumer_secret: "consumer_secret"
   site: "http://www.example.com"
   redis_url: "redis://127.0.0.1:9736/0"
+  api_version: 2
 
 # production:
 # Configured via heroku config environment variables

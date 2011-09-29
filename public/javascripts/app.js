@@ -3,11 +3,12 @@
   var root = this;
   var WP;
 
-  var _           = root._,
+  var $           = root.$,
+      _           = root._,
       FormData    = root.FormData,
       FileReader  = root.FileReader,
       FileError   = root.FileError,
-      Backbone    = root.Backbone;
+      Backbone    = root.Backbone,
       Queue       = root.Queue;
 
   // Set up Mustache-style templating
@@ -336,6 +337,24 @@
   // ------
 
   WP.Medium = Backbone.Model.extend({
+    
+    MAX_FILE_SIZE: 10000000,
+    VALID_IMAGE_TYPES: "jpeg bmp x-png x-ms-bmp gif tiff x-pict",
+    validMimeTypes: function() {
+      return _(this.VALID_IMAGE_TYPES.split(" ")).map(function(mime) { return "image/" + mime; });
+    },
+
+    validate: function(attrs) {
+      var size, type;
+      attrs || (attrs = {});
+      if ((type = attrs.type) && (!_(this.validMimeTypes()).include(type))) {
+        return "error: file type "+type+" currently not supported.";
+      }
+      if ((size = attrs.size) && (size > this.MAX_FILE_SIZE)) {
+        return "error: file size "+Math.floor(size/1000000)+"MB is too large.";
+      }
+      return null;
+    },
 
     sync: function(method, model, options) {
       var self = this, file;
