@@ -1,6 +1,6 @@
 source :gemcutter
 
-gem "rake", "~> 0.8.7"
+gem "rake", "~> 0.9.2"
 
 gem "thin"
 gem "sinatra"
@@ -19,7 +19,7 @@ group :development, :test do
   gem "rspec"
   gem 'ruby-debug', :platforms => :ruby_18
   gem 'ruby-debug19', :require => 'ruby-debug', :platforms => :ruby_19
-  gem "jasmine"
+  # gem "jasmine"
   gem "static_fm"
   # gem "static_fm", :path => '/Users/ross/projects/static_fm'
 end
