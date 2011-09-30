@@ -47,6 +47,12 @@ page.onConsoleMessage = function(msg) {
 };
 
 page.open(phantom.args[0], function(status){
+    page.evaluate(function() {
+      // console.log("jquery", $);
+      // console.log($("head").html());
+      // console.log($("body").html());
+      // console.log("jasmine.Suite", jasmine.Suite);
+    });
     if (status !== "success") {
         console.log("Unable to access network");
         phantom.exit();

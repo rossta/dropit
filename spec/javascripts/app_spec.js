@@ -1,10 +1,12 @@
 describe("WP", function() {
   var data, reader, html, app, files, groups;
-  data = new FormData;
-  reader = new FileReader;
   html = loadFile('/__spec__/fixtures/index.erb');
 
   beforeEach(function() {
+
+    data    = jasmine.createSpyObj('FormData', ['append']);;
+    reader  = jasmine.createSpyObj('FileReader', ['readAsDataURL']);
+
     Factory.define('medium', WP.Medium, {
       "type":"KImage", "height":474, "k_entry_id":"0_rj5efqxi", "width":355, "album_id": 891,
       "album_attachable_type": "User", "album_attachable_id": 15, "album_title": "Uploads"
@@ -22,7 +24,7 @@ describe("WP", function() {
     });
     spyOn(WP.Utils, 'formData').andReturn(data);
     spyOn(WP.Utils, 'fileReader').andReturn(reader);
-    spyOn(reader, 'readAsDataURL');
+
     fixture(html);
   });
 
@@ -194,7 +196,6 @@ describe("WP", function() {
       describe("send", function() {
         beforeEach(function() {
           spyOn($, "ajax");
-          spyOn(data, "append");
         });
 
         describe("valid data", function() {
@@ -461,11 +462,11 @@ describe("WP", function() {
       });
     });
 
-  	describe("validate", function() {
-  	  var validation;
-  	  beforeEach(function() {
+   describe("validate", function() {
+     var validation;
+     beforeEach(function() {
         medium = Factory.create("medium");
-  	  });
+     });
       it("should allow valid file", function() {
         validation = medium.validate({
           filename: "image.jpg",
@@ -492,7 +493,7 @@ describe("WP", function() {
         });
         expect(validation).toMatch("file size 10MB is too large");
       });
-  	});
+   });
   });
 
   describe("WP.Thumbnail", function() {

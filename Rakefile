@@ -15,7 +15,7 @@ begin
   load 'jasmine/tasks/jasmine.rake'
 
   # local jasmine extensions
-  # load 'lib/tasks/jasmine.rake'
+  load 'lib/tasks/jasmine.rake'
 
 rescue LoadError
   task :jasmine do

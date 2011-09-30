@@ -7,7 +7,7 @@
       _           = root._,
       FormData    = root.FormData,
       FileReader  = root.FileReader,
-      FileError   = root.FileError,
+      // FileError   = root.FileError,
       Backbone    = root.Backbone,
       Queue       = root.Queue;
 
@@ -17,7 +17,7 @@
   };
 
   WP = root.WP = {};
-
+console.log("WP", WP);
   WP.Settings = {
     xhr: true,
     dragdrop: true,
@@ -315,11 +315,11 @@
   });
 
   _.extend(WP.FileReaderUpload, {
-    NOT_FOUND_ERR     : (FileError.NOT_FOUND_ERR    || 1),
-    SECURITY_ERR      : (FileError.SECURITY_ERR     || 2),
-    ABORT_ERR         : (FileError.ABORT_ERR        || 3),
-    NOT_READABLE_ERR  : (FileError.NOT_READABLE_ERR || 4),
-    ENCODING_ERR      : (FileError.ENCODING_ERR     || 5)
+    NOT_FOUND_ERR     : (1),
+    SECURITY_ERR      : (2),
+    ABORT_ERR         : (3),
+    NOT_READABLE_ERR  : (4),
+    ENCODING_ERR      : (5)
   });
 
   WP.BasicUpload = function(file) {
@@ -337,7 +337,7 @@
   // ------
 
   WP.Medium = Backbone.Model.extend({
-    
+
     MAX_FILE_SIZE: 10000000,
     VALID_IMAGE_TYPES: "jpeg bmp x-png x-ms-bmp gif tiff x-pict",
     validMimeTypes: function() {
@@ -401,8 +401,8 @@
     },
 
     attachableName: function() {
-      var context, group;
-      if (group = this.group()) {
+      var group = this.group(), context;
+      if (group) {
         context = group.escape("name");
       } else {
         context = "Personal Gallery";
