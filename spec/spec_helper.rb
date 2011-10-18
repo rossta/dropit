@@ -6,7 +6,6 @@ require 'rack/test'
 
 # require 'cgi'
 Bundler.setup(:default, :test)
-Bundler.require(:default, :test)
 # set :environment, :test # rspec ignoring?
 # set :raise_errors, true
 # set :logging, false
