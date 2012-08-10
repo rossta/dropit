@@ -1,5 +1,4 @@
 require "rubygems"
-require "rake"
 require "bundler/setup"
 
 require 'rspec/core/rake_task'
@@ -24,7 +23,7 @@ rescue LoadError
 end
 
 desc 'Default: run specs.'
-task :default => [:spec, "jasmine:ci"]
+task :default => [:spec, "jasmine:ci:phantomjs"]
 
 require 'static_fm'
 load 'static_fm/tasks/static_fm.rake'

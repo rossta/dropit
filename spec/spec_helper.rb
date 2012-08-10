@@ -3,17 +3,23 @@ ENV['RACK_ENV'] = 'test'
 require 'rubygems'
 require 'bundler'
 require 'rack/test'
+require 'capybara/rspec'
+require 'capybara/mechanize'
+require 'vcr'
 
 # require 'cgi'
 Bundler.setup(:default, :test)
 # set :environment, :test # rspec ignoring?
 # set :raise_errors, true
-# set :logging, false
+# set :logging, true
 
 dir = File.dirname(File.expand_path(__FILE__))
 $LOAD_PATH.unshift(dir, 'lib')
 
 require 'dropit'
+
+# Load support files
+Dir["#{File.dirname(__FILE__)}/support/**/*.rb"].each { |f| require f }
 
 RSpec.configure do |config|
   config.mock_with :rspec
@@ -22,6 +28,8 @@ end
 def app
   DropIt::Server
 end
+
+Capybara.app = app
 
 class SessionData
   def initialize(cookies)

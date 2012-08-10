@@ -1,0 +1,93 @@
+---
+- !ruby/struct:VCR::HTTPInteraction
+  request: !ruby/struct:VCR::Request
+    method: :get
+    uri: http://www.example.com:80/oauth/request_token
+    body: 
+    headers:
+      user-agent:
+      - OAuth gem v0.4.5
+      authorization:
+      - OAuth oauth_callback="oob", oauth_consumer_key="consumer_key", oauth_nonce="MQUrKTqWgLVc9qXmc9BAeKYTT401xK6MuOWw5Ykm0g",
+        oauth_signature="g8%2Ba5zBcCeWJOUbbxumyEG%2FcM24%3D", oauth_signature_method="HMAC-SHA1",
+        oauth_timestamp="1329788991", oauth_version="1.0"
+  response: !ruby/struct:VCR::Response
+    status: !ruby/struct:VCR::ResponseStatus
+      code: 302
+      message: Found
+    headers:
+      location:
+      - http://www.iana.org/domains/example/
+      server:
+      - BigIP
+      content-length:
+      - '0'
+    body: 
+    http_version: '1.0'
+- !ruby/struct:VCR::HTTPInteraction
+  request: !ruby/struct:VCR::Request
+    method: :get
+    uri: http://www.example.com:80/domains/example/
+    body: 
+    headers:
+      user-agent:
+      - OAuth gem v0.4.5
+      authorization:
+      - OAuth oauth_callback="oob", oauth_consumer_key="consumer_key", oauth_nonce="ys5raKaUWuLubRH60cyh2zRPlqCW2hBQxzf4eeRcHM",
+        oauth_signature="Qqupk%2F0swnmRerewlQEn5VpH3Lk%3D", oauth_signature_method="HMAC-SHA1",
+        oauth_timestamp="1329788991", oauth_version="1.0"
+  response: !ruby/struct:VCR::Response
+    status: !ruby/struct:VCR::ResponseStatus
+      code: 302
+      message: Found
+    headers:
+      location:
+      - http://www.iana.org/domains/example/
+      server:
+      - BigIP
+      content-length:
+      - '0'
+    body: 
+    http_version: '1.0'
+- !ruby/struct:VCR::HTTPInteraction
+  request: !ruby/struct:VCR::Request
+    method: :get
+    uri: http://www.weplay.com:80/oauth/request_token
+    body: 
+    headers:
+      user-agent:
+      - OAuth gem v0.4.5
+      authorization:
+      - OAuth oauth_callback="oob", oauth_consumer_key="4f7IArxty9b7fJ5nRxER", oauth_nonce="lw3V9OXXFXs2au8OsxaMaAdlcOfUPwa7vPOAmT7tNI",
+        oauth_signature="qNyDclti3DNnZkZ8gPPin40u5ew%3D", oauth_signature_method="HMAC-SHA1",
+        oauth_timestamp="1344473231", oauth_version="1.0"
+  response: !ruby/struct:VCR::Response
+    status: !ruby/struct:VCR::ResponseStatus
+      code: 200
+      message: OK
+    headers:
+      server:
+      - nginx
+      date:
+      - Thu, 09 Aug 2012 00:47:07 GMT
+      content-type:
+      - text/html; charset=utf-8
+      status:
+      - 200 OK
+      set-cookie:
+      - first_visit_at=Wed+Aug+08+17%3A47%3A07+-0700+2012; domain=.weplay.com; path=/;
+        HttpOnly
+      - _weplay_session_id=BAh7CToTdmlzaXRfcmVjb3JkZWRUOhRhYmluZ29faWRlbnRpdHkiDzIzNDExMTQ1MjA6E29tbml0dXJlX2V2YXJzewZpByIXRmlyc3QgVGltZSBWaXNpdG9yOg9zZXNzaW9uX2lkIiU2ZTI2ZjBjMDhhZmYxMWRhMzc5ZDRhNWM1NzFhMzI2Yg%3D%3D--8c5bd03357636f4be77007f89de9c8be8136ab47;
+        domain=.weplay.com; path=/; HttpOnly
+      content-length:
+      - '122'
+      x-runtime:
+      - '46'
+      cache-control:
+      - private, max-age=0, must-revalidate
+      x-revision:
+      - 9aa8bb4649da31b03773d6377ae310a4ed679df6
+      etag:
+      - ! '"e5f47424c3654e258794d1baea9f1abe"'
+    body: oauth_token=WBajRvTs8Jr7fVsebGZC&oauth_token_secret=bC5vvnmXhYNa1jFuV85BpyHLTkujrGiNDoG8vLAS&oauth_callback_confirmed=true
+    http_version: '1.1'

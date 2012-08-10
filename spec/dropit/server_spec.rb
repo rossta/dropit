@@ -177,12 +177,12 @@ describe DropIt::Server do
   describe "settings" do
 
     it "should set site" do
-      app.settings.site.should == "http://www.example.com"
+      app.settings.site.should == "http://www.weplay.com"
     end
 
     it "should set consumer info" do
-      app.settings.consumer_key.should == "consumer_key"
-      app.settings.consumer_secret.should == "consumer_secret"
+      app.settings.consumer_key.length.should == 20
+      app.settings.consumer_secret.length.should == 40
     end
   end
 

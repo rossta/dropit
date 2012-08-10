@@ -21,5 +21,9 @@ group :development, :test do
   gem 'ruby-debug19', :require => 'ruby-debug', :platforms => :ruby_19
   gem "jasmine", "~> 1.0.2"
   gem "static_fm"
-  # gem "static_fm", :path => '/Users/ross/projects/static_fm'
+  gem "capybara"
+  gem "capybara-mechanize"
+  gem "vcr"
+  gem "fakeweb"
+  gem "launchy"
 end

@@ -7,10 +7,10 @@ module Sinatra
     def load_environment_from_yml
       if settings.environment == :production
         puts "Loading production environment"
-        set :consumer_key     , ENV['CONSUMER_KEY']      || "QFGhpo6jkxiN7UvN70Dr"
-        set :consumer_secret  , ENV['CONSUMER_SECRET']   || "jKlOi0e8wNpx6f02ueQzDQXRDfJ4zbVAzWbj3L3C"
-        set :redis_url        , ENV['REDISTOGO_URL']     || "http://www.localhost.com"
-        set :site             , ENV['SITE_URL']          || "redis://127.0.0.1:6379/0"
+        set :consumer_key     , ENV['CONSUMER_KEY']      || "4f7IArxty9b7fJ5nRxER"
+        set :consumer_secret  , ENV['CONSUMER_SECRET']   || "gJh3rLd4Esl5a3cpqjdHHrqU8VfG2VVuMnuYyWca"
+        set :redis_url        , ENV['REDISTOGO_URL']     || "redis://127.0.0.1:6379/0"
+        set :site             , ENV['SITE_URL']          || "http://www.weplay.com"
         set :api_version      , ENV['API_VERSION']       || "1"
       else
         if !File.exist?('./config/environment.yml')

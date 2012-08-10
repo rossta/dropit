@@ -17,7 +17,7 @@
   };
 
   WP = root.WP = {};
-console.log("WP", WP);
+
   WP.Settings = {
     xhr: true,
     dragdrop: true,
