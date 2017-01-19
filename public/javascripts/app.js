@@ -151,6 +151,7 @@ console.log("WP", WP);
             console.log("Upload error");
             console.log.apply(console, arguments);
             WP.Media.trigger('uploadend', model, response);
+            model.set({'status': 'error during upload: ' + response.statusText });
           },
 
           success: function(model, response) {
@@ -261,15 +262,15 @@ console.log("WP", WP);
     },
 
     provider: function() {
-      var xhr = $.ajaxSettings.xhr();
+      var self = this, xhr = $.ajaxSettings.xhr();
       if (xhr.upload) {
         xhr.upload.addEventListener('progress', function (event) {
           console.log("progress", event);
           if (event.lengthComputable) {
             var percentage = Math.round((event.loaded * 100) / event.total);
             console.log('Loaded : '+percentage+'%');
+            self.trigger("progress", percentage);
           }
-
         }, false);
       }
       return xhr;
@@ -360,8 +361,15 @@ console.log("WP", WP);
       var self = this, file;
       if (self.isNew() && method == 'create' && (file = this.get("file"))) {
         WP.Upload.enqueue(function() {
-          self.set({"status": "uploading"});
-          WP.Upload.create(file, options);
+          var upload;
+          // TODO consider state machine implementation for status/percentage
+          self.set({"status": "uploading", "percentage": 0 });
+          upload = WP.Upload.create(file, options);
+          upload.bind("progress", function(percentage) {
+            var attrs = {"percentage": percentage };
+            if (percentage >= 99) attrs["status"] = "processing";
+            self.set(attrs);
+          });
           self.set({"file": null});
         });
       } else {
@@ -421,6 +429,10 @@ console.log("WP", WP);
 
     uploadStatus: function() {
       return this.escape("filename") +" "+(this.get("status")||'ready')+" ...";
+    },
+
+    uploadProgress: function() {
+      return 'Loaded : '+(this.get("percentage") || 0)+'%';
     },
 
     className: "Medium"

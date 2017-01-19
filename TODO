@@ -18,9 +18,7 @@ During Upload
 - Show progress
 
 Upload Complete
-- Render thumbnail data
-- Link to medium on Weplay
-- Link to album on Weplay
+- Preload image url
 
 Server
 - Background API calls and push result to browser
